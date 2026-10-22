@@ -16,9 +16,15 @@
             - file1 
             - file2 
             ===
-            - treasure
+            + treasure
         - folder1 
+            - file0
+            - file1 
+            - file2 
         - folder2 
+            - file0
+            - file1 
+            - file2 
     - folder1 
         - file0
         - file1 
