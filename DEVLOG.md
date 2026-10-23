@@ -30,3 +30,7 @@
 
 ## 10/22/26 - 10:56 PM - Nate Rupard
 - Updated devlog entries to include time
+
+## 10/22/26 - 11:45 PM - Nate Rupard
+- Created the `Folder` and `FolderStructure` classes with future intentions to 
+  use them to map out the JSON dict returned from the JSON files
