@@ -11,3 +11,8 @@
 - Started the folder structure for Ready Player Root
 - Continued the skeleton for the script
 - Fixed an issue in the example
+
+## 10/22/26 - Nate Rupard
+- Renamed scavenger-hunt.py to scavenger_hunt.py according to pylint
+- Added docstrings to all the functions
+- Temporarily gave certain variables an `_` because they are not used yet
