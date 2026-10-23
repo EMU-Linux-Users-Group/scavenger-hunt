@@ -1,0 +1,60 @@
+{
+    "Unbeatable Race": "gf4fh4",
+    "gf4fh4": {
+        "Copper Key": "cfd4ys",
+        "file_name1": "file_id1",
+        "file_name2": "file_id2",
+        "folder_name0": "folder_id0",
+        "folder_id0": {
+            "folder_name0": "folder_id0",
+            "folder_id0": {
+                "file_name0": "file_id0",
+                "file_name1": "file_id1",
+                "file_name2": "file_id2",
+                "folder_name0": "folder_id0",
+                "folder_id0": {
+                    "file_name0": "file_id0",
+                    "file_name1": "file_id1",
+                    "file_name2": "file_id2",
+                    "treasure": "treasure"
+                },
+                "folder_name1": "folder_id1",
+                "folder_id1": {
+                    "file_name0": "file_id0",
+                    "file_name1": "file_id1",
+                    "file_name2": "file_id2"
+                },
+                "folder_name2": "folder_id2",
+                "folder_id2": {
+                    "file_name0": "file_id0",
+                    "file_name1": "file_id1",
+                    "file_name2": "file_id2"
+                }
+            },
+            "folder_name1": "folder_id1",
+            "folder_id1": {
+                "file_name0": "file_id0",
+                "file_name1": "file_id1",
+                "file_name2": "file_id2"
+            },
+            "folder_name2": "folder_id2",
+            "folder_id2": {
+                "file_name0": "file_id0",
+                "file_name1": "file_id1",
+                "file_name2": "file_id2"
+            }
+        }
+    },
+    "folder_name1": "folder_id1",
+    "folder_id1": {
+        "file_name0": "file_id0",
+        "file_name1": "file_id1",
+        "file_name2": "file_id2"
+    },
+    "folder_name2": "folder_id2",
+    "folder_id2": {
+        "file_name0": "file_id0",
+        "file_name1": "file_id1",
+        "file_name2": "file_id2"
+    }
+}

@@ -16,3 +16,14 @@
 - Renamed scavenger-hunt.py to scavenger_hunt.py according to pylint
 - Added docstrings to all the functions
 - Temporarily gave certain variables an `_` because they are not used yet
+
+## 10/22/26 - Nate Rupard
+- Changed custom folder structure format to JSON
+- Added JSON versions of the .txt files for the previous format
+    - Kept previous format .txt files for future reference
+- Updated the `read_folder_structure` function to use JSON
+- Started work on the `create_folders_and_files_from_folder_structure` function
+- Imported the `json`, `pprint`, and `pathlib` libraries
+    - `json`
+    - `pprint` from `pprint`
+    - `Path` from `pathlib`
