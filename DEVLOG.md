@@ -34,3 +34,13 @@
 ## 10/22/26 - 11:45 PM - Nate Rupard
 - Created the `Folder` and `FolderStructure` classes with future intentions to 
   use them to map out the JSON dict returned from the JSON files
+
+## 10/27/26 - 4:29 PM - Nate Rupard
+- Removed FolderStructure class
+- Integrated FolderStructure functionality into Folder
+- Fixed folder_structure.example.json
+- Added `parse_folder_structure`
+- Added `folders` setter to `Folder`
+- Added `print_folder_structure` for easier debugging
+- Added TODO.md
+- Changed `create_folders_and_files_from_folder_structure` to `create_folder`
