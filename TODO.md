@@ -1,6 +1,7 @@
-- [ ] `watchdog` functionality
+- [ ] monitor functionality
 - [ ] folder re-creation functionality 
 - [ ] finished `create_folder` function
 - [ ] hints/hint functionality
 - [ ] Ready Player Root folder structure
 - [ ] Ready Player Root incorrect file names
+- [ ] commands

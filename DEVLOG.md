@@ -52,3 +52,9 @@
 - Updated TODO.md
 - After several minutes of contemplation, I decided to revert the merge 
   between the 4:34 and 4:29 logs
+
+## 10/27/26 - 6:21 PM - Nate Rupard
+- Updated TODO.md
+- Added COMMANDS.md
+- Added monitor.pyw
+- Deleted TXT files
