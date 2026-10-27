@@ -35,7 +35,7 @@
 - Created the `Folder` and `FolderStructure` classes with future intentions to 
   use them to map out the JSON dict returned from the JSON files
 
-## 10/27/26 - 4:29 PM - Nate Rupard
+## 10/27/26 - 4:34 PM - Nate Rupard
 - Removed FolderStructure class
 - Integrated FolderStructure functionality into Folder
 - Fixed folder_structure.example.json
@@ -44,3 +44,4 @@
 - Added `print_folder_structure` for easier debugging
 - Added TODO.md
 - Changed `create_folders_and_files_from_folder_structure` to `create_folder`
+- Fixed (but dnf) folder_structure.readyplayerroot.json
