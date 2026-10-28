@@ -64,8 +64,19 @@
 - Changed `create_folder` to `Folder.create`
 - Imported `shutil`
 - Finished but did not test `Folder.create`
-    - This **hopefully** achieved checks 2 and 3 for today's TODO
+    - This **hopefully** achieved checks 2 and 3* for today's TODO (*Update 10:58 PM: checks 2 and 3 are now 1 and 2)
 - Cleaned up `parse_folder_structure` and made it pylint-compliant
 - Cleaned up `print_folder_structure` and it now prints different variable 
   names
 - `main` now only prints with `print_folder_structure`
+
+## 10/27/26 - 11:02 PM - Nate Rupard
+- Formally removed `create_folder`
+- Removed `pprint`
+- Fixed `Folder.create`
+- As a test, the main function now creates a folder in "./test_folder"
+- Updated TODO.md
+    - Moved monitor functionality to the end of Wednesday
+- Notes for the next couple days
+    - We need a separate JSON file that mirrors the folder structure that gives
+      hints and correct and incorrect information

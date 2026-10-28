@@ -1,7 +1,6 @@
 """Scavenger hunt for Digital Dudes and Divas"""
 
 import json
-from pprint import pprint
 from pathlib import Path
 import shutil
 
@@ -65,19 +64,80 @@ class Folder:
             path / self._folders[0].id_,
             path / self._folders[1].id_,
             path / self._folders[2].id_,
-            path / Path(self._folders[0].id_) / self._folders[0].folders[0].id_,
-            path / Path(self._folders[0].id_) / self._folders[0].folders[1].id_,
-            path / Path(self._folders[0].id_) / self._folders[0].folders[2].id_,
-            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
-                 / self._folders[0].folders[0].folders[0].id_,
-            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
-                 / self._folders[0].folders[0].folders[1].id_,
-            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
-                 / self._folders[0].folders[0].folders[2].id_
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_,
+            path / self._folders[0].id_ / self._folders[0].folders[1].id_,
+            path / self._folders[0].id_ / self._folders[0].folders[2].id_,
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].id_,
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[1].id_,
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[2].id_,
+        ]
+
+        files = [
+            (path / self._folders[0].id_ / self._folders[0].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].file_names[2]),
+            (path / self._folders[1].id_ / self._folders[1].file_names[0],
+            path / self._folders[1].id_ / self._folders[1].file_names[1],
+            path / self._folders[1].id_ / self._folders[1].file_names[2]),
+            (path / self._folders[2].id_ / self._folders[2].file_names[0],
+            path / self._folders[2].id_ / self._folders[2].file_names[1],
+            path / self._folders[2].id_ / self._folders[2].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[1].id_
+            / self._folders[0].folders[1].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[1].id_
+            / self._folders[0].folders[1].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[1].id_
+            / self._folders[0].folders[1].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[2].id_
+            / self._folders[0].folders[2].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[2].id_
+            / self._folders[0].folders[2].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[2].id_
+            / self._folders[0].folders[2].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[0].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[1].id_
+            / self._folders[0].folders[0].folders[1].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[1].id_
+            / self._folders[0].folders[0].folders[1].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[1].id_
+            / self._folders[0].folders[0].folders[1].file_names[2]),
+            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[2].id_
+            / self._folders[0].folders[0].folders[2].file_names[0],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[2].id_
+            / self._folders[0].folders[0].folders[2].file_names[1],
+            path / self._folders[0].id_ / self._folders[0].folders[0].id_
+            / self._folders[0].folders[0].folders[2].id_
+            / self._folders[0].folders[0].folders[2].file_names[2]),
         ]
 
         for folder in folders:
             folder.mkdir()
+
+        for file_tuple in files:
+            for file in file_tuple:
+                file.touch()
 
         return self.NO_ERROR
 
@@ -158,14 +218,6 @@ def parse_folder_structure(folder_structure):
 
     return root
 
-def create_folder(folder, folder_path):
-    """Creates the folders and files specified by `folder` into `folder_path`"""
-    folder_names = folder.keys()
-    for i in len(folder_names):
-        i += 1
-        folder = Path(f"{folder_path}/{folder_names[i]}")
-        folder.mkdir(parents=True, exist_ok=True)
-
 def main():
     """The main function"""
 
@@ -176,7 +228,8 @@ def main():
         return
 
     print_folder_structure(folder_structure)
-    parse_folder_structure(folder_structure)
+    folder = parse_folder_structure(folder_structure)
+    folder.create(Path("./test_folder"))
 
 if __name__ == "__main__":
     main()

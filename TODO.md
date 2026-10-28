@@ -1,5 +1,4 @@
 # Tuesday
-- [ ] monitor functionality
 - [x] folder re-creation functionality 
 - [x] finished `Folder.create` function
 
@@ -7,6 +6,7 @@
 - [ ] hints/hint functionality
 - [ ] Ready Player Root folder structure
 - [ ] Ready Player Root incorrect file names
+- [ ] monitor functionality
 
 # Thursday
 - [ ] functionality to rename each layer of folders and files to their 
