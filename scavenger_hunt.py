@@ -3,6 +3,7 @@
 import json
 from pprint import pprint
 from pathlib import Path
+import shutil
 
 class Folder:
     """
@@ -11,6 +12,10 @@ class Folder:
     with the the first one remaining in order for the three folders to appear.\n
     If there are not three files, it must be the root/start folder.
     """
+
+    NO_ERROR = 0
+    CANNOT_MODIFY = 1
+
     def __init__(self, name: str, id_: str,
                  file_names: tuple[str, str, str] | None = None,
                  folders: tuple[Folder, Folder, Folder] | None = None):
@@ -44,6 +49,38 @@ class Folder:
         """Sets `self._folders` to `value`"""
         self._folders = value
 
+    def create(self, path: Path):
+        """Creates the folder in an actual directory dictated by `path`"""
+
+        if path.exists():
+            choice = input(f"Delete `{path}`? (y/N)\n>")
+            if choice in ('y', 'Y'):
+                shutil.rmtree(path)
+            else:
+                return self.CANNOT_MODIFY
+
+        path.mkdir()
+
+        folders = [
+            path / self._folders[0].id_,
+            path / self._folders[1].id_,
+            path / self._folders[2].id_,
+            path / Path(self._folders[0].id_) / self._folders[0].folders[0].id_,
+            path / Path(self._folders[0].id_) / self._folders[0].folders[1].id_,
+            path / Path(self._folders[0].id_) / self._folders[0].folders[2].id_,
+            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
+                 / self._folders[0].folders[0].folders[0].id_,
+            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
+                 / self._folders[0].folders[0].folders[1].id_,
+            path / Path(self._folders[0].id_) / Path(self._folders[0].folders[0].id_)
+                 / self._folders[0].folders[0].folders[2].id_
+        ]
+
+        for folder in folders:
+            folder.mkdir()
+
+        return self.NO_ERROR
+
 def read_folder_structure(file_name: str | None = None):
     """Reads a folder structure from a file"""
 
@@ -57,63 +94,67 @@ def print_folder_structure(folder_structure):
     """Prints a JSON `folder_structure` by `list`"""
 
     root_keys = list(folder_structure.keys())
-    print(f"{root_keys = }")
     folder0_0_keys = list(folder_structure[root_keys[1]])
-    print(f"{folder0_0_keys = }")
-    folder0_1_keys = list(folder_structure[root_keys[3]])
-    print(f"{folder0_1_keys = }")
-    folder0_2_keys = list(folder_structure[root_keys[5]])
-    print(f"{folder0_2_keys = }")
     folder1_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]])
-    print(f"{folder1_0_keys = }")
-    folder1_1_keys = list(folder_structure[root_keys[1]][folder0_0_keys[6]])
-    print(f"{folder1_1_keys = }")
-    folder1_2_keys = list(folder_structure[root_keys[1]][folder0_0_keys[8]])
-    print(f"{folder1_2_keys = }")
-    folder2_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]])
-    print(f"{folder2_0_keys = }")
-    folder2_1_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]])
-    print(f"{folder2_1_keys = }")
-    folder2_2_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
-    print(f"{folder2_2_keys = }")
+    folder_keys = [
+        list(folder_structure[root_keys[3]]),
+        list(folder_structure[root_keys[5]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[6]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[8]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
+    ]
+
+    print(f"{root_keys      = }")
+    print(f"{folder0_0_keys = }")
+    for i, folder in enumerate(folder_keys):
+        print(f"folder 0{i} keys = {folder}")
+        if i == 3:
+            print(f"{folder1_0_keys = }")
+
 
 def parse_folder_structure(folder_structure):
     """Converts a JSON `folder_structure` to a `Folder`"""
 
     root_keys = list(folder_structure.keys())
     folder0_0_keys = list(folder_structure[root_keys[1]])
-    folder0_1_keys = list(folder_structure[root_keys[3]])
-    folder0_2_keys = list(folder_structure[root_keys[5]])
     folder1_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]])
-    folder1_1_keys = list(folder_structure[root_keys[1]][folder0_0_keys[6]])
-    folder1_2_keys = list(folder_structure[root_keys[1]][folder0_0_keys[8]])
-    folder2_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]])
-    folder2_1_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]])
-    folder2_2_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
+    folder_keys = [
+        list(folder_structure[root_keys[3]]),
+        list(folder_structure[root_keys[5]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[6]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[8]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]]),
+        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
+    ]
 
     root = Folder("start", "start")
-    folder0_0 = Folder(root_keys[0], root_keys[1],
-                       (folder0_0_keys[0], folder0_0_keys[1], folder0_0_keys[2]))
-    folder0_1 = Folder(root_keys[2], root_keys[3],
-                       (folder0_1_keys[0], folder0_1_keys[1], folder0_1_keys[2]))
-    folder0_2 = Folder(root_keys[4], root_keys[5],
-                       (folder0_2_keys[0], folder0_2_keys[1], folder0_2_keys[2]))
-    folder1_0 = Folder(folder0_0_keys[3], folder0_0_keys[4],
-                       (folder1_0_keys[0], folder1_0_keys[1], folder1_0_keys[2]))
-    folder1_1 = Folder(folder0_0_keys[5], folder0_0_keys[6],
-                       (folder1_1_keys[0], folder1_1_keys[1], folder1_1_keys[2]))
-    folder1_2 = Folder(folder0_0_keys[7], folder0_0_keys[8],
-                       (folder1_2_keys[0], folder1_2_keys[1], folder1_2_keys[2]))
-    folder2_0 = Folder(folder1_0_keys[3], folder1_0_keys[4],
-                       (folder2_0_keys[0], folder2_0_keys[1], folder2_0_keys[2]))
-    folder2_1 = Folder(folder1_0_keys[5], folder1_0_keys[6],
-                       (folder2_1_keys[0], folder2_1_keys[1], folder2_1_keys[2]))
-    folder2_2 = Folder(folder1_0_keys[7], folder1_0_keys[8],
-                       (folder2_2_keys[0], folder2_2_keys[1], folder2_2_keys[2]))
+    folders = [
+        Folder(root_keys[0], root_keys[1],
+                        (folder0_0_keys[0], folder0_0_keys[1], folder0_0_keys[2])),
+        Folder(root_keys[2], root_keys[3],
+                        (folder_keys[0][0], folder_keys[0][1], folder_keys[0][2])),
+        Folder(root_keys[4], root_keys[5],
+                        (folder_keys[1][0], folder_keys[1][1], folder_keys[1][2])),
+        Folder(folder0_0_keys[3], folder0_0_keys[4],
+                        (folder1_0_keys[0], folder1_0_keys[1], folder1_0_keys[2])),
+        Folder(folder0_0_keys[5], folder0_0_keys[6],
+                        (folder_keys[2][0], folder_keys[2][1], folder_keys[2][2])),
+        Folder(folder0_0_keys[7], folder0_0_keys[8],
+                        (folder_keys[3][0], folder_keys[3][1], folder_keys[3][2])),
+        Folder(folder1_0_keys[3], folder1_0_keys[4],
+                        (folder_keys[4][0], folder_keys[4][1], folder_keys[4][2])),
+        Folder(folder1_0_keys[5], folder1_0_keys[6],
+                        (folder_keys[5][0], folder_keys[5][1], folder_keys[5][2])),
+        Folder(folder1_0_keys[7], folder1_0_keys[8],
+                        (folder_keys[6][0], folder_keys[6][1], folder_keys[6][2]))
+    ]
 
-    folder1_0.folders = (folder2_0, folder2_1, folder2_2)
-    folder0_0.folders = (folder1_0, folder1_1, folder1_2)
-    root.folders = (folder0_0, folder0_1, folder0_2)
+    folders[3].folders = (folders[6], folders[7], folders[8])
+    folders[0].folders = (folders[3], folders[4], folders[5])
+    root.folders = (folders[0], folders[1], folders[2])
 
     return root
 
@@ -134,17 +175,8 @@ def main():
         print("Invalid JSON file")
         return
 
-    pprint(folder_structure)
-
+    print_folder_structure(folder_structure)
     parse_folder_structure(folder_structure)
-
-    print("folder structure keys")
-    pprint(folder_structure.keys())
-
-    root_keys = list(folder_structure.keys())
-    folder0_keys = folder_structure[root_keys[1]].keys()
-    print("folder0 keys")
-    pprint(folder0_keys)
 
 if __name__ == "__main__":
     main()

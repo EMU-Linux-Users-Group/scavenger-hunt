@@ -58,3 +58,14 @@
 - Added COMMANDS.md
 - Added monitor.pyw
 - Deleted TXT files
+
+## 10/27/26 - 8:06 PM - Nate Rupard
+- Updated TODO.md
+- Changed `create_folder` to `Folder.create`
+- Imported `shutil`
+- Finished but did not test `Folder.create`
+    - This **hopefully** achieved checks 2 and 3 for today's TODO
+- Cleaned up `parse_folder_structure` and made it pylint-compliant
+- Cleaned up `print_folder_structure` and it now prints different variable 
+  names
+- `main` now only prints with `print_folder_structure`
