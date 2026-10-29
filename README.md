@@ -75,8 +75,8 @@ correct folder holds `"treasure": "<file name>"`.
         "Copper Key": "cfd4ys",
         "Backwards Ramps": "k3m9xp",
         "King Kong": "dr66tk",
-        "Overlook Hotel": "ghfn6g",
-        "ghfn6g": { "...": "..." }
+        "Overlook Hotel": "2hfn6g",
+        "2hfn6g": { "...": "..." }
     }
 }
 ```
@@ -93,7 +93,7 @@ treasure text.
         "cfd4ys": "A small key made of copper...",
         "k3m9xp": "A row of ramps...",
         "dr66tk": "A giant ape...",
-        "ghfn6g": { "...": "..." }
+        "2hfn6g": { "...": "..." }
     }
 }
 ```

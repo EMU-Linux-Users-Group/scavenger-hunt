@@ -89,6 +89,18 @@ class ValidateTests(unittest.TestCase):
         del self.hints["t78sxc"]["hint"]
         self.assert_invalid("hint")
 
+    def test_rejects_file_text_that_is_not_a_string(self):
+        self.hints["t78sxc"]["sdfg92"]["fgb939"]["fgdj39"] = 42
+        self.assert_invalid("fgdj39")
+
+    def test_rejects_folder_hints_that_are_not_an_object(self):
+        self.hints["t78sxc"]["sdfg92"] = "oops"
+        self.assert_invalid("sdfg92")
+
+    def test_rejects_room_hint_that_is_not_a_string(self):
+        self.hints["t78sxc"]["hint"] = ["Red House hint"]
+        self.assert_invalid("hint")
+
     def test_rejects_slash_in_a_revealed_name(self):
         self.folders = {("Red/House" if key == "Red House" else key): value
                         for key, value in self.folders.items()}

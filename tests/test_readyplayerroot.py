@@ -46,6 +46,31 @@ class ReadyPlayerRootTests(unittest.TestCase):
                 mentions_key = re.search(r"\bkeys?\b", file.contents, re.IGNORECASE)
                 self.assertEqual(bool(mentions_key), file.id_ in keys, file.name)
 
+    def rooms(self):
+        """Returns every room, starting with the game folder"""
+        rooms = [self.root]
+        while rooms[-1].correct_folder.folders:
+            rooms.append(rooms[-1].correct_folder)
+        return rooms
+
+    def test_ls_order_does_not_reveal_the_answer(self):
+        folder_spots, key_spots = set(), set()
+        for room in self.rooms():
+            correct = room.correct_folder
+            folder_spots.add(sorted(folder.id_ for folder in room.folders).index(correct.id_))
+            key_spots.add(sorted(file.id_ for file in correct.files)
+                          .index(correct.correct_file.id_))
+        self.assertGreater(len(folder_spots), 1)
+        self.assertGreater(len(key_spots), 1)
+
+    def test_file_sizes_do_not_reveal_the_key(self):
+        key_ranks = set()
+        for room in self.rooms():
+            correct = room.correct_folder
+            sizes = sorted(len(file.contents) for file in correct.files)
+            key_ranks.add(sizes.index(len(correct.correct_file.contents)))
+        self.assertGreater(len(key_ranks), 1)
+
     def test_no_text_gives_away_an_id(self):
         folders = list(_every_folder(self.root))
         ids = {item.id_ for folder in folders for item in folder.files + folder.folders}

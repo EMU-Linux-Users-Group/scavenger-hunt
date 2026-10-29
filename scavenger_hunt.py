@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import random
 import shutil
 import signal
 import subprocess
@@ -130,7 +131,7 @@ class Folder:
         Its folders are placed later by the monitor, once this room is solved.
         """
         _make_folder(path)
-        for file in self._files:
+        for file in random.sample(self._files, len(self._files)):
             file.place(path / file.id_)
 
 
@@ -149,6 +150,9 @@ def parse_folder_structure(folder_structure: dict, hint_structure: dict | None =
     otherwise it is a file. `hint_structure` mirrors the same IDs.
     """
 
+    if not isinstance(hint_structure, (dict, type(None))):
+        raise ValueError(f"`{name}` ({id_}) is a folder, so its hint structure entry "
+                         "must be an object")
     hints = hint_structure or {}
     files = []
     folders = []
@@ -157,13 +161,26 @@ def parse_folder_structure(folder_structure: dict, hint_structure: dict | None =
         if not isinstance(value, str):
             continue
         if key.lower() == "treasure":
-            treasure = File(value, value, hints.get("treasure", ""))
+            treasure = File(value, value, _hint_text(hints, "treasure", "the treasure"))
         elif isinstance(folder_structure.get(value), dict):
             folders.append(parse_folder_structure(folder_structure[value],
                                                   hints.get(value), key, value))
         else:
-            files.append(File(key, value, hints.get(value, "")))
-    return Folder(name, id_, tuple(files), tuple(folders), hints.get("hint"), treasure)
+            files.append(File(key, value, _hint_text(hints, value, f"`{key}` ({value})")))
+    hint = hints.get("hint")
+    if hint is not None and not isinstance(hint, str):
+        raise ValueError(f"the hint for `{name}` must be text")
+    return Folder(name, id_, tuple(files), tuple(folders), hint, treasure)
+
+
+def _hint_text(hints: dict, id_: str, label: str) -> str:
+    """Returns the hint structure's text for `id_`, which must be a string"""
+
+    text = hints.get(id_, "")
+    if not isinstance(text, str):
+        raise ValueError(f"{label} needs text in the hint structure, "
+                         f"not {type(text).__name__}")
+    return text
 
 
 def _check_name(value: str):
@@ -257,8 +274,9 @@ class Game:
 
     def setup(self):
         """Deletes any old game and creates the first room"""
-        if self._room_dir.exists():
+        if self._room_dir.is_dir():
             shutil.rmtree(self._room_dir)
+        _make_folder(self._room_dir)
         self._create_room()
 
     def poll(self) -> str | None:
@@ -280,8 +298,11 @@ class Game:
         return message
 
     def _create_room(self):
-        """Creates the current room's three folders and any of their missing files"""
-        for folder in self._room.folders:
+        """
+        Creates the current room's three folders and any of their missing files.\n
+        They are made in a random order so `ls -t` can't give away the answer.
+        """
+        for folder in random.sample(self._room.folders, len(self._room.folders)):
             folder.create(self._room_dir / folder.id_)
 
     def _snapshot(self) -> frozenset[Path]:

@@ -156,6 +156,23 @@ class GameTests(unittest.TestCase):
         self.assertFalse((self.game_dir / "Red House").exists())
         self.assertTrue((self.game_dir / "78tgdf").is_dir())
 
+    def test_setup_replaces_a_file_where_the_game_folder_should_be(self):
+        shutil.rmtree(self.game_dir)
+        self.game_dir.write_text("echoed", encoding="utf-8")
+        Game(self.root, self.game_dir).setup()
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_creation_order_does_not_reveal_the_correct_items(self):
+        first_folders, first_files = set(), set()
+        for _ in range(30):
+            Game(self.root, self.game_dir).setup()
+            folders = list(self.game_dir.iterdir())
+            first_folders.add(min(folders, key=lambda path: path.stat().st_ino).name)
+            files = list((self.game_dir / "t78sxc").iterdir())
+            first_files.add(min(files, key=lambda path: path.stat().st_ino).name)
+        self.assertGreater(len(first_folders), 1)
+        self.assertGreater(len(first_files), 1)
+
     def test_winning_places_the_treasure(self):
         messages = play_to_the_end(self.game, self.root, self.game_dir)
         self.assertEqual(messages, [NEXT_ROOM_MESSAGE, NEXT_ROOM_MESSAGE, TREASURE_MESSAGE])
