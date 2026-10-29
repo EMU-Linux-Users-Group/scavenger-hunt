@@ -3,15 +3,18 @@
 - [x] finished `Folder.create` function
 
 # Wednesday
-- [ ] hints/hint functionality
-- [ ] Ready Player Root folder structure
+- [x] hints/hint functionality
+- [x] Ready Player Root folder structure
       - [x] draft
 - [x] Ready Player Root incorrect file names
-- [ ] monitor functionality
+- [x] monitor functionality
 
 # Thursday
-- [ ] functionality to rename each layer of folders and files to their 
+- [x] functionality to rename each layer of folders and files to their 
       non-garbled names when their respective keys are found
-- [ ] commands
+- [x] commands
 - [ ] add better explanation of how this is all going to work in the 
       presentation
+      - slide text is in README.md → "How to play"; paste it into the
+        Google Slides deck
+- [ ] team review of the hint text in `hint_structure.readyplayerroot.json`

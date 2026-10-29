@@ -88,3 +88,17 @@
 - Added the draft for Isaac's work to be translated into a JSON file
 - Added a SPEC.md file meant for any collaborators, but mainly my good friend
   Albert Iverson
+## 10/29/26 - 5:33 PM - Nate Rupard (with Claude)
+- Rewrote `Folder` parsing to be recursive and added a `File` class
+- Added the hint_structure format (`hint_structure.*.json`) and validation
+  for hand-written hunt JSON
+- Added `Game`, which reveals one room at a time, renames solved folders and
+  keys to their real names, and resets the room after a wrong deletion
+- Added the `start`/`stop` commands and filled in `monitor.pyw` (popups via
+  osascript, tkinter, or zenity)
+- Translated Isaac's draft into `folder_structure.readyplayerroot.json` and
+  drafted all hint/treasure text in `hint_structure.readyplayerroot.json`
+    - Rooms 2 and 3 keys are now named Jade Key and Crystal Key
+- Added tests (`python3 -m unittest discover -s tests -v`), including tricky
+  things students might try
+- Filled in README.md with how to run and how to play (slide text)
