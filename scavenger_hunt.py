@@ -1,27 +1,63 @@
 """Scavenger hunt for Digital Dudes and Divas"""
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
 import shutil
 
+
+class File:
+    """A file in the hunt, named by its ID until its room is solved"""
+
+    def __init__(self, name: str, id_: str, contents: str = ""):
+        self._name = name
+        self._id = id_
+        self._contents = contents
+
+    @property
+    def name(self):
+        """Returns the name of the file"""
+        return self._name
+
+    @property
+    def id_(self):
+        """Returns the ID of the file"""
+        return self._id
+
+    @property
+    def contents(self):
+        """Returns the hint text inside the file"""
+        return self._contents
+
+    def place(self, path: Path):
+        """Writes the file at `path` unless it is already there, replacing a folder in its way"""
+        if path.is_dir():
+            shutil.rmtree(path)
+        if not path.exists():
+            path.write_text(self._contents + "\n", encoding="utf-8")
+
+
 class Folder:
     """
-    Contains possibly three files and possibly three folders.\n
+    Contains three files and possibly three folders.\n
+    The 0th file and the 0th folder are always the correct ones.\n
     If there are three folders, the second and third files must be deleted
-    with the the first one remaining in order for the three folders to appear.\n
+    with the first one remaining in order for the three folders to appear.\n
     If there are not three files, it must be the root/start folder.
     """
 
-    NO_ERROR = 0
-    CANNOT_MODIFY = 1
-
     def __init__(self, name: str, id_: str,
-                 file_names: tuple[str, str, str] | None = None,
-                 folders: tuple[Folder, Folder, Folder] | None = None):
+                 files: tuple[File, ...] = (),
+                 folders: tuple[Folder, ...] = (),
+                 hint: str | None = None,
+                 treasure: File | None = None):
         self._name = name
         self._id = id_
-        self._file_names = file_names
+        self._files = files
         self._folders = folders
+        self._hint = hint
+        self._treasure = treasure
 
     @property
     def name(self):
@@ -34,202 +70,142 @@ class Folder:
         return self._id
 
     @property
-    def file_names(self):
-        """Returns file names contained in the folder"""
-        return self._file_names
+    def files(self):
+        """Returns files contained in the folder"""
+        return self._files
 
     @property
     def folders(self):
         """Returns folders contained in the folder"""
         return self._folders
 
-    @folders.setter
-    def folders(self, value):
-        """Sets `self._folders` to `value`"""
-        self._folders = value
+    @property
+    def hint(self):
+        """Returns the hint shown when the player destroys this (correct) folder"""
+        return self._hint
+
+    @property
+    def treasure(self):
+        """Returns the treasure file, which only the last correct folder has"""
+        return self._treasure
+
+    @property
+    def correct_folder(self):
+        """Returns the folder the player has to keep"""
+        return self._folders[0]
+
+    @property
+    def correct_file(self):
+        """Returns the file the player has to keep"""
+        return self._files[0]
 
     def create(self, path: Path):
-        """Creates the folder in an actual directory dictated by `path`"""
+        """
+        Creates the folder at `path` with any of its files that are missing,
+        named by their IDs.\n
+        Its folders are placed later by the monitor, once this room is solved.
+        """
+        if path.exists() and not path.is_dir():
+            path.unlink()
+        path.mkdir(parents=True, exist_ok=True)
+        for file in self._files:
+            file.place(path / file.id_)
 
-        if path.exists():
-            choice = input(f"Delete `{path}`? (y/N)\n>")
-            if choice in ('y', 'Y'):
-                shutil.rmtree(path)
-            else:
-                return self.CANNOT_MODIFY
 
-        path.mkdir()
-
-        folders = [
-            path / self._folders[0].id_,
-            path / self._folders[1].id_,
-            path / self._folders[2].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[1].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[2].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[1].id_,
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[2].id_,
-        ]
-
-        files = [
-            (path / self._folders[0].id_ / self._folders[0].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].file_names[2]),
-            (path / self._folders[1].id_ / self._folders[1].file_names[0],
-            path / self._folders[1].id_ / self._folders[1].file_names[1],
-            path / self._folders[1].id_ / self._folders[1].file_names[2]),
-            (path / self._folders[2].id_ / self._folders[2].file_names[0],
-            path / self._folders[2].id_ / self._folders[2].file_names[1],
-            path / self._folders[2].id_ / self._folders[2].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[1].id_
-            / self._folders[0].folders[1].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[1].id_
-            / self._folders[0].folders[1].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[1].id_
-            / self._folders[0].folders[1].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[2].id_
-            / self._folders[0].folders[2].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[2].id_
-            / self._folders[0].folders[2].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[2].id_
-            / self._folders[0].folders[2].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[0].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[1].id_
-            / self._folders[0].folders[0].folders[1].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[1].id_
-            / self._folders[0].folders[0].folders[1].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[1].id_
-            / self._folders[0].folders[0].folders[1].file_names[2]),
-            (path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[2].id_
-            / self._folders[0].folders[0].folders[2].file_names[0],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[2].id_
-            / self._folders[0].folders[0].folders[2].file_names[1],
-            path / self._folders[0].id_ / self._folders[0].folders[0].id_
-            / self._folders[0].folders[0].folders[2].id_
-            / self._folders[0].folders[0].folders[2].file_names[2]),
-        ]
-
-        for folder in folders:
-            folder.mkdir()
-
-        for file_tuple in files:
-            for file in file_tuple:
-                file.touch()
-
-        return self.NO_ERROR
-
-def read_folder_structure(file_name: str | None = None):
-    """Reads a folder structure from a file"""
-
-    if file_name is None:
-        file_name = "folder_structure.json"
+def read_folder_structure(file_name: str | Path):
+    """Reads a folder or hint structure from a JSON file"""
 
     with open(file_name, 'r', encoding="utf-8") as folder_structure:
         return json.load(folder_structure)
 
-def print_folder_structure(folder_structure):
-    """Prints a JSON `folder_structure` by `list`"""
 
-    root_keys = list(folder_structure.keys())
-    folder0_0_keys = list(folder_structure[root_keys[1]])
-    folder1_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]])
-    folder_keys = [
-        list(folder_structure[root_keys[3]]),
-        list(folder_structure[root_keys[5]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[6]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[8]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
-    ]
+def parse_folder_structure(folder_structure: dict, hint_structure: dict | None = None,
+                           name: str = "start", id_: str = "start") -> Folder:
+    """
+    Converts a JSON `folder_structure` to a `Folder`.\n
+    Names map to IDs; an ID that is also a key holding an object is a folder,
+    otherwise it is a file. `hint_structure` mirrors the same IDs.
+    """
 
-    print(f"{root_keys      = }")
-    print(f"{folder0_0_keys = }")
-    for i, folder in enumerate(folder_keys):
-        print(f"folder 0{i} keys = {folder}")
-        if i == 3:
-            print(f"{folder1_0_keys = }")
+    hints = hint_structure or {}
+    files = []
+    folders = []
+    treasure = None
+    for key, value in folder_structure.items():
+        if not isinstance(value, str):
+            continue
+        if key.lower() == "treasure":
+            treasure = File(value, value, hints.get("treasure", ""))
+        elif isinstance(folder_structure.get(value), dict):
+            folders.append(parse_folder_structure(folder_structure[value],
+                                                  hints.get(value), key, value))
+        else:
+            files.append(File(key, value, hints.get(value, "")))
+    return Folder(name, id_, tuple(files), tuple(folders), hints.get("hint"), treasure)
 
 
-def parse_folder_structure(folder_structure):
-    """Converts a JSON `folder_structure` to a `Folder`"""
+def _check_name(value: str):
+    """Raises `ValueError` if `value` cannot be used as a file or folder name"""
 
-    root_keys = list(folder_structure.keys())
-    folder0_0_keys = list(folder_structure[root_keys[1]])
-    folder1_0_keys = list(folder_structure[root_keys[1]][folder0_0_keys[4]])
-    folder_keys = [
-        list(folder_structure[root_keys[3]]),
-        list(folder_structure[root_keys[5]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[6]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[8]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[4]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[6]]),
-        list(folder_structure[root_keys[1]][folder0_0_keys[4]][folder1_0_keys[8]])
-    ]
+    if value in ("", ".", "..") or "/" in value or "\0" in value:
+        raise ValueError(f"`{value}` cannot be used as a file or folder name")
 
-    root = Folder("start", "start")
-    folders = [
-        Folder(root_keys[0], root_keys[1],
-                        (folder0_0_keys[0], folder0_0_keys[1], folder0_0_keys[2])),
-        Folder(root_keys[2], root_keys[3],
-                        (folder_keys[0][0], folder_keys[0][1], folder_keys[0][2])),
-        Folder(root_keys[4], root_keys[5],
-                        (folder_keys[1][0], folder_keys[1][1], folder_keys[1][2])),
-        Folder(folder0_0_keys[3], folder0_0_keys[4],
-                        (folder1_0_keys[0], folder1_0_keys[1], folder1_0_keys[2])),
-        Folder(folder0_0_keys[5], folder0_0_keys[6],
-                        (folder_keys[2][0], folder_keys[2][1], folder_keys[2][2])),
-        Folder(folder0_0_keys[7], folder0_0_keys[8],
-                        (folder_keys[3][0], folder_keys[3][1], folder_keys[3][2])),
-        Folder(folder1_0_keys[3], folder1_0_keys[4],
-                        (folder_keys[4][0], folder_keys[4][1], folder_keys[4][2])),
-        Folder(folder1_0_keys[5], folder1_0_keys[6],
-                        (folder_keys[5][0], folder_keys[5][1], folder_keys[5][2])),
-        Folder(folder1_0_keys[7], folder1_0_keys[8],
-                        (folder_keys[6][0], folder_keys[6][1], folder_keys[6][2]))
-    ]
 
-    folders[3].folders = (folders[6], folders[7], folders[8])
-    folders[0].folders = (folders[3], folders[4], folders[5])
-    root.folders = (folders[0], folders[1], folders[2])
+def _validate_folder(folder: Folder):
+    """Checks the files and IDs of one of the three folders in a room"""
 
+    if len(folder.files) != 3:
+        raise ValueError(f"`{folder.name}` must contain exactly 3 files")
+    items = folder.files + folder.folders
+    if len({item.id_ for item in items}) != len(items):
+        raise ValueError(f"an ID is used twice inside `{folder.name}`")
+    for item in items:
+        _check_name(item.id_)
+    for file in folder.files:
+        if not file.contents:
+            raise ValueError(f"`{file.name}` ({file.id_}) has no text in the hint structure")
+
+
+def validate_structure(root: Folder):
+    """Raises `ValueError` if `root` is not a playable hunt"""
+
+    room = root
+    while room.folders:
+        if len(room.folders) != 3 or len({folder.id_ for folder in room.folders}) != 3:
+            raise ValueError(f"`{room.name}` must contain exactly 3 folders with different IDs")
+        for folder in room.folders:
+            _validate_folder(folder)
+        for folder in room.folders[1:]:
+            if folder.folders or folder.treasure:
+                raise ValueError(f"`{folder.name}` is a wrong folder, so it cannot hold "
+                                 "folders or treasure")
+        correct = room.correct_folder
+        if not correct.hint:
+            raise ValueError(f"`{correct.name}` needs a hint in the hint structure")
+        _check_name(correct.name)
+        _check_name(correct.correct_file.name)
+        room = correct
+    if room is root:
+        raise ValueError("the start folder must contain 3 folders")
+    if room.treasure is None or not room.treasure.contents:
+        raise ValueError(f"`{room.name}` must contain the treasure and its text")
+    _check_name(room.treasure.name)
+
+
+def load_hunt(folder_structure_file: Path, hint_structure_file: Path) -> Folder:
+    """Reads, parses, and validates a hunt from its folder and hint structure files"""
+
+    root = parse_folder_structure(read_folder_structure(folder_structure_file),
+                                  read_folder_structure(hint_structure_file))
+    validate_structure(root)
     return root
 
+
 def main():
-    """The main function"""
+    """The main function (temporary until the commands are added)"""
 
-    try:
-        folder_structure = read_folder_structure("folder_structure.test.json")
-    except json.decoder.JSONDecodeError:
-        print("Invalid JSON file")
-        return
-
-    print_folder_structure(folder_structure)
-    folder = parse_folder_structure(folder_structure)
-    folder.create(Path("./test_folder"))
+    root = load_hunt(Path("folder_structure.test.json"), Path("hint_structure.test.json"))
+    print(f"Loaded the `{root.correct_folder.name}` hunt")
 
 if __name__ == "__main__":
     main()
