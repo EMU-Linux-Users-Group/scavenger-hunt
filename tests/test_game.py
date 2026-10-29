@@ -1,0 +1,127 @@
+"""Tests for the game rules the monitor runs on every poll"""
+
+from __future__ import annotations
+
+from pathlib import Path
+import shutil
+import tempfile
+import unittest
+
+from helpers import (TEST_FOLDER_STRUCTURE, TEST_HINT_STRUCTURE, play_to_the_end,
+                     settle, solve_room)
+from scavenger_hunt import NEXT_ROOM_MESSAGE, TREASURE_MESSAGE, Game, load_hunt
+
+
+class GameTests(unittest.TestCase):
+    """Plays the test hunt in a temporary folder"""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.game_dir = Path(tmp.name) / "hunt"
+        self.root = load_hunt(TEST_FOLDER_STRUCTURE, TEST_HINT_STRUCTURE)
+        self.game = Game(self.root, self.game_dir)
+        self.game.setup()
+        self.assertIsNone(settle(self.game))
+
+    def unlock_first_room(self) -> Path:
+        """Solves room 1 and returns the renamed correct folder"""
+        solve_room(self.game_dir, self.root)
+        self.assertEqual(settle(self.game), NEXT_ROOM_MESSAGE)
+        return self.game_dir / "Red House"
+
+    def test_setup_creates_only_the_first_room(self):
+        self.assertEqual(sorted(path.name for path in self.game_dir.iterdir()),
+                         ["78tgdf", "sdfilj", "t78sxc"])
+        self.assertEqual(sorted(path.name for path in (self.game_dir / "t78sxc").iterdir()),
+                         ["dgfhuj", "higdf8", "vvsg92"])
+        self.assertEqual((self.game_dir / "t78sxc" / "dgfhuj").read_text(encoding="utf-8"),
+                         "Blue Knife in the Red House\n")
+
+    def test_setup_deletes_an_old_game(self):
+        (self.game_dir / "old.txt").write_text("old", encoding="utf-8")
+        self.game.setup()
+        self.assertFalse((self.game_dir / "old.txt").exists())
+
+    def test_partial_progress_does_nothing(self):
+        shutil.rmtree(self.game_dir / "78tgdf")
+        self.assertIsNone(settle(self.game))
+        self.assertFalse((self.game_dir / "78tgdf").exists())
+
+    def test_empty_wrong_folder_left_behind_blocks_unlocking(self):
+        solve_room(self.game_dir, self.root)
+        (self.game_dir / "78tgdf").mkdir()
+        self.assertIsNone(settle(self.game))
+
+    def test_waits_until_the_folder_stops_changing(self):
+        solve_room(self.game_dir, self.root)
+        self.assertIsNone(self.game.poll())
+        self.assertEqual(self.game.poll(), NEXT_ROOM_MESSAGE)
+
+    def test_unlocking_renames_and_places_the_next_room(self):
+        red_house = self.unlock_first_room()
+        self.assertFalse((self.game_dir / "t78sxc").exists())
+        self.assertEqual((red_house / "Blue Knife").read_text(encoding="utf-8"),
+                         "Blue Knife in the Red House\n")
+        self.assertEqual(sorted(path.name for path in red_house.iterdir()),
+                         ["Blue Knife", "dssfs9", "sdfg92", "sdfop2"])
+        self.assertTrue((red_house / "sdfg92" / "sdg924").is_file())
+
+    def test_own_rename_is_not_a_wrong_deletion(self):
+        self.unlock_first_room()
+        for _ in range(3):
+            self.assertIsNone(settle(self.game))
+
+    def test_deleting_the_key_resets_the_room(self):
+        shutil.rmtree(self.game_dir / "78tgdf")
+        (self.game_dir / "t78sxc" / "dgfhuj").unlink()
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+        self.assertTrue((self.game_dir / "78tgdf" / "dsg352").is_file())
+
+    def test_deleting_everything_resets_the_room_once(self):
+        for path in list(self.game_dir.iterdir()):
+            shutil.rmtree(path)
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertEqual(len(list(self.game_dir.iterdir())), 3)
+        self.assertIsNone(settle(self.game))
+
+    def test_deleting_an_unlocked_room_restores_it(self):
+        red_house = self.unlock_first_room()
+        shutil.rmtree(self.game_dir)
+        self.assertEqual(settle(self.game), "Giant Palace hint")
+        self.assertTrue((red_house / "Blue Knife").is_file())
+        self.assertTrue((red_house / "sdfg92" / "sdg924").is_file())
+
+    def test_deleting_an_unlocked_key_restores_it(self):
+        red_house = self.unlock_first_room()
+        (red_house / "Blue Knife").unlink()
+        self.assertEqual(settle(self.game), "Giant Palace hint")
+        self.assertTrue((red_house / "Blue Knife").is_file())
+
+    def test_player_made_files_are_ignored(self):
+        (self.game_dir / "notes").mkdir()
+        (self.game_dir / "t78sxc" / "copy.txt").write_text("hi", encoding="utf-8")
+        self.unlock_first_room()
+
+    def test_player_made_folder_with_the_real_name_is_replaced(self):
+        (self.game_dir / "Red House").mkdir()
+        (self.game_dir / "Red House" / "junk").write_text("hi", encoding="utf-8")
+        red_house = self.unlock_first_room()
+        self.assertFalse((red_house / "junk").exists())
+
+    def test_file_where_a_folder_should_be_is_replaced(self):
+        shutil.rmtree(self.game_dir / "t78sxc")
+        (self.game_dir / "t78sxc").write_text("copied", encoding="utf-8")
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_winning_places_the_treasure(self):
+        messages = play_to_the_end(self.game, self.root, self.game_dir)
+        self.assertEqual(messages, [NEXT_ROOM_MESSAGE, NEXT_ROOM_MESSAGE, TREASURE_MESSAGE])
+        congress = self.game_dir / "Red House" / "Giant Palace" / "Congress Building"
+        self.assertEqual((congress / "Golden Deagle").read_text(encoding="utf-8"),
+                         "You found the Golden Deagle!\n")
+        self.assertTrue((congress / "Judge Gavel").is_file())
+        self.assertTrue(self.game.finished)
+        self.assertIsNone(settle(self.game))

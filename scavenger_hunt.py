@@ -6,6 +6,9 @@ import json
 from pathlib import Path
 import shutil
 
+NEXT_ROOM_MESSAGE = "Congratulations! You unlocked the next room!"
+TREASURE_MESSAGE = "Congratulations! You unlocked the treasure!"
+
 
 class File:
     """A file in the hunt, named by its ID until its room is solved"""
@@ -199,6 +202,117 @@ def load_hunt(folder_structure_file: Path, hint_structure_file: Path) -> Folder:
                                   read_folder_structure(hint_structure_file))
     validate_structure(root)
     return root
+
+
+def _rename(source: Path, target: Path) -> Path:
+    """Renames `source` to `target`, replacing anything the player made at `target`"""
+
+    if source == target:
+        return target
+    if target.is_dir():
+        shutil.rmtree(target)
+    elif target.exists():
+        target.unlink()
+    return source.rename(target)
+
+
+class Game:
+    """
+    Tracks which room the player is solving and reacts to what they delete.\n
+    The monitor is the only thing that renames or creates game folders, so
+    after it does, it forgets what it last saw and watches the new room fresh.
+    """
+
+    def __init__(self, root: Folder, game_dir: Path):
+        self._room = root
+        self._room_dir = game_dir
+        self._unlocked: list[tuple[Path, File]] = []
+        self._last_snapshot: frozenset[Path] | None = None
+        self._finished = False
+
+    @property
+    def finished(self):
+        """Returns whether the treasure has been unlocked"""
+        return self._finished
+
+    def setup(self):
+        """Deletes any old game and creates the first room"""
+        if self._room_dir.exists():
+            shutil.rmtree(self._room_dir)
+        self._create_room()
+
+    def poll(self) -> str | None:
+        """
+        Checks the game folder once and returns a popup message if something
+        happened, otherwise `None`.\n
+        Nothing happens until the folders look the same on two polls in a row,
+        so the monitor never reacts in the middle of an `rm -r`.
+        """
+        if self._finished:
+            return None
+        snapshot = self._snapshot()
+        if snapshot != self._last_snapshot:
+            self._last_snapshot = snapshot
+            return None
+        message = self._check()
+        if message is not None:
+            self._last_snapshot = None
+        return message
+
+    def _create_room(self):
+        """Creates the current room's three folders and any of their missing files"""
+        for folder in self._room.folders:
+            folder.create(self._room_dir / folder.id_)
+
+    def _snapshot(self) -> frozenset[Path]:
+        """Returns every path the game cares about that currently exists"""
+        paths = [self._room_dir]
+        for directory, key in self._unlocked:
+            paths += [directory, directory / key.name]
+        for folder in self._room.folders:
+            folder_dir = self._room_dir / folder.id_
+            paths.append(folder_dir)
+            paths += [folder_dir / file.id_ for file in folder.files]
+        return frozenset(path for path in paths if path.exists())
+
+    def _check(self) -> str | None:
+        """Resets the room after a wrong deletion, or unlocks it once it is solved"""
+        correct = self._room.correct_folder
+        correct_dir = self._room_dir / correct.id_
+        progress_intact = self._room_dir.is_dir() and all(
+            (directory / key.name).is_file() for directory, key in self._unlocked)
+        if not progress_intact or not (correct_dir / correct.correct_file.id_).is_file():
+            self._restore()
+            return correct.hint
+        wrong_paths = [self._room_dir / folder.id_ for folder in self._room.folders[1:]]
+        wrong_paths += [correct_dir / file.id_ for file in correct.files[1:]]
+        if any(path.exists() for path in wrong_paths):
+            return None
+        return self._unlock()
+
+    def _restore(self):
+        """Puts back the rooms and keys already unlocked, then resets the current room"""
+        for directory, key in self._unlocked:
+            directory.mkdir(parents=True, exist_ok=True)
+            key.place(directory / key.name)
+        self._room_dir.mkdir(parents=True, exist_ok=True)
+        self._create_room()
+
+    def _unlock(self) -> str:
+        """Renames the solved folder and key to their real names and places what comes next"""
+        correct = self._room.correct_folder
+        key = correct.correct_file
+        folder_dir = _rename(self._room_dir / correct.id_, self._room_dir / correct.name)
+        _rename(folder_dir / key.id_, folder_dir / key.name)
+        self._unlocked.append((folder_dir, key))
+        self._room = correct
+        self._room_dir = folder_dir
+        if correct.folders:
+            self._create_room()
+            return NEXT_ROOM_MESSAGE
+        correct.treasure.place(folder_dir / correct.treasure.name)
+        self._finished = True
+        return TREASURE_MESSAGE
 
 
 def main():
