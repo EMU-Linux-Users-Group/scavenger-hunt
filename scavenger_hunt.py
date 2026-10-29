@@ -2,12 +2,25 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
 from pathlib import Path
 import shutil
+import signal
+import subprocess
+import sys
+import time
 
 NEXT_ROOM_MESSAGE = "Congratulations! You unlocked the next room!"
 TREASURE_MESSAGE = "Congratulations! You unlocked the treasure!"
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+GAME_DIR = Path.home() / "ready_player_root"
+FOLDER_STRUCTURE_FILE = SCRIPT_DIR / "folder_structure.readyplayerroot.json"
+HINT_STRUCTURE_FILE = SCRIPT_DIR / "hint_structure.readyplayerroot.json"
+PID_FILE = SCRIPT_DIR / ".monitor.pid"
+MONITOR_SCRIPT = SCRIPT_DIR / "monitor.pyw"
 
 
 class File:
@@ -315,11 +328,78 @@ class Game:
         return TREASURE_MESSAGE
 
 
-def main():
-    """The main function (temporary until the commands are added)"""
+def _is_monitor(pid: int) -> bool:
+    """Returns whether process `pid` is this project's running `monitor.pyw`"""
 
-    root = load_hunt(Path("folder_structure.test.json"), Path("hint_structure.test.json"))
-    print(f"Loaded the `{root.correct_folder.name}` hunt")
+    result = subprocess.run(["ps", "-ww", "-p", str(pid), "-o", "command="],
+                            capture_output=True, text=True, check=False)
+    return str(MONITOR_SCRIPT) in result.stdout
+
+
+def monitor_pid(pid_file: Path = PID_FILE) -> int | None:
+    """Returns the PID of the running monitor, or `None` if it is not running"""
+
+    try:
+        pid = int(pid_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return pid if _is_monitor(pid) else None
+
+
+def start_monitor(game_dir: Path, folder_structure_file: Path = FOLDER_STRUCTURE_FILE,
+                  hint_structure_file: Path = HINT_STRUCTURE_FILE,
+                  pid_file: Path = PID_FILE) -> int:
+    """Starts `monitor.pyw` in the background, saves its PID, and returns it"""
+
+    with open(pid_file.with_suffix(".log"), "a", encoding="utf-8") as log:
+        process = subprocess.Popen(  # pylint: disable=consider-using-with
+            [sys.executable, str(MONITOR_SCRIPT), str(game_dir),
+             str(folder_structure_file), str(hint_structure_file)],
+            stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True)
+    pid_file.write_text(str(process.pid), encoding="utf-8")
+    return process.pid
+
+
+def stop_monitor(pid_file: Path = PID_FILE) -> bool:
+    """Stops the monitor if it is running and returns whether it was"""
+
+    pid = monitor_pid(pid_file)
+    pid_file.unlink(missing_ok=True)
+    if pid is None:
+        return False
+    try:
+        os.kill(pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return False
+    for _ in range(50):
+        if not _is_monitor(pid):
+            break
+        time.sleep(0.1)
+    return True
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Runs the `start` or `stop` command"""
+
+    parser = argparse.ArgumentParser(description="Ready Player Root scavenger hunt")
+    parser.add_argument("command", choices=("start", "stop"))
+    args = parser.parse_args(argv)
+
+    if args.command == "stop":
+        print("Stopped the monitor" if stop_monitor() else "The monitor is not running")
+        return 0
+
+    try:
+        root = load_hunt(FOLDER_STRUCTURE_FILE, HINT_STRUCTURE_FILE)
+    except (OSError, ValueError) as error:
+        print(f"Could not load the hunt: {error}")
+        return 1
+    stop_monitor()
+    Game(root, GAME_DIR).setup()
+    start_monitor(GAME_DIR)
+    print(f"Ready Player Root is ready! Players start with: cd {GAME_DIR}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
