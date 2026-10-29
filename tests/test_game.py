@@ -116,6 +116,46 @@ class GameTests(unittest.TestCase):
         self.assertEqual(settle(self.game), "Red House hint")
         self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
 
+    # Tricky things students might try
+
+    def test_deleting_the_whole_game_folder_resets_the_room(self):
+        shutil.rmtree(self.game_dir)
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_file_where_the_game_folder_should_be_is_replaced(self):
+        shutil.rmtree(self.game_dir)
+        self.game_dir.write_text("echoed", encoding="utf-8")
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_file_where_an_unlocked_room_should_be_is_replaced(self):
+        red_house = self.unlock_first_room()
+        shutil.rmtree(red_house)
+        red_house.write_text("echoed", encoding="utf-8")
+        self.assertEqual(settle(self.game), "Giant Palace hint")
+        self.assertTrue((red_house / "Blue Knife").is_file())
+        self.assertTrue((red_house / "sdfg92" / "sdg924").is_file())
+
+    def test_folder_where_the_key_should_be_is_replaced(self):
+        (self.game_dir / "t78sxc" / "dgfhuj").unlink()
+        (self.game_dir / "t78sxc" / "dgfhuj").mkdir()
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_player_made_file_with_the_key_name_is_replaced(self):
+        (self.game_dir / "t78sxc" / "Blue Knife").write_text("fake", encoding="utf-8")
+        red_house = self.unlock_first_room()
+        self.assertEqual((red_house / "Blue Knife").read_text(encoding="utf-8"),
+                         "Blue Knife in the Red House\n")
+
+    def test_deleting_wrong_items_and_the_key_together_resets_instead_of_unlocking(self):
+        solve_room(self.game_dir, self.root)
+        (self.game_dir / "t78sxc" / "dgfhuj").unlink()
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertFalse((self.game_dir / "Red House").exists())
+        self.assertTrue((self.game_dir / "78tgdf").is_dir())
+
     def test_winning_places_the_treasure(self):
         messages = play_to_the_end(self.game, self.root, self.game_dir)
         self.assertEqual(messages, [NEXT_ROOM_MESSAGE, NEXT_ROOM_MESSAGE, TREASURE_MESSAGE])

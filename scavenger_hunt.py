@@ -23,6 +23,14 @@ PID_FILE = SCRIPT_DIR / ".monitor.pid"
 MONITOR_SCRIPT = SCRIPT_DIR / "monitor.pyw"
 
 
+def _make_folder(path: Path):
+    """Creates the folder at `path` if it is missing, replacing a file in its way"""
+
+    if path.exists() and not path.is_dir():
+        path.unlink()
+    path.mkdir(parents=True, exist_ok=True)
+
+
 class File:
     """A file in the hunt, named by its ID until its room is solved"""
 
@@ -121,9 +129,7 @@ class Folder:
         named by their IDs.\n
         Its folders are placed later by the monitor, once this room is solved.
         """
-        if path.exists() and not path.is_dir():
-            path.unlink()
-        path.mkdir(parents=True, exist_ok=True)
+        _make_folder(path)
         for file in self._files:
             file.place(path / file.id_)
 
@@ -237,6 +243,7 @@ class Game:
     """
 
     def __init__(self, root: Folder, game_dir: Path):
+        self._game_dir = game_dir
         self._room = root
         self._room_dir = game_dir
         self._unlocked: list[tuple[Path, File]] = []
@@ -305,10 +312,10 @@ class Game:
 
     def _restore(self):
         """Puts back the rooms and keys already unlocked, then resets the current room"""
+        _make_folder(self._game_dir)
         for directory, key in self._unlocked:
-            directory.mkdir(parents=True, exist_ok=True)
+            _make_folder(directory)
             key.place(directory / key.name)
-        self._room_dir.mkdir(parents=True, exist_ok=True)
         self._create_room()
 
     def _unlock(self) -> str:
