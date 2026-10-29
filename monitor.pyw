@@ -56,7 +56,11 @@ def main():
     game_dir, folder_structure_file, hint_structure_file = (Path(arg) for arg in sys.argv[1:4])
     game = Game(load_hunt(folder_structure_file, hint_structure_file), game_dir)
     while not game.finished:
-        message = game.poll()
+        try:
+            message = game.poll()
+        except OSError as error:  # e.g. a player chmod-ed a folder; try again next poll
+            print(f"Could not update the game folder: {error}", flush=True)
+            message = None
         if message:
             show_popup(message)
         time.sleep(POLL_SECONDS)
