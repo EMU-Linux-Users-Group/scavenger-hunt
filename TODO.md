@@ -5,7 +5,8 @@
 # Wednesday
 - [ ] hints/hint functionality
 - [ ] Ready Player Root folder structure
-- [ ] Ready Player Root incorrect file names
+      - [x] draft
+- [x] Ready Player Root incorrect file names
 - [ ] monitor functionality
 
 # Thursday

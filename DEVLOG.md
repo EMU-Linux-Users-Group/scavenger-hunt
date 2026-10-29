@@ -80,3 +80,11 @@
 - Notes for the next couple days
     - We need a separate JSON file that mirrors the folder structure that gives
       hints and correct and incorrect information
+
+## 10/28/26 - 9:23 PM - Isaac Mullison (filled in 10/29/26, 4:46 PM, by Nate Rupard)
+- Completed correct and incorrect file names
+
+## 10/29/26 - 5:01 PM - Nate Rupard
+- Added the draft for Isaac's work to be translated into a JSON file
+- Added a SPEC.md file meant for any collaborators, but mainly my good friend
+  Albert Iverson
