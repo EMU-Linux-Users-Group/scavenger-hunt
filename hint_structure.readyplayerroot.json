@@ -1,0 +1,51 @@
+{
+    "gf4fh4": {
+        "hint": "Oops! That was part of the real path, so this room has been reset. Hint: look for the folder whose three files all happen at the same race, a race that nobody has ever won.",
+        "cfd4ys": "A small key made of copper, still warm from the roaring engines above it. It was hidden in an underground passageway beneath the racetrack, proof that the unwinnable race on the surface was always a diversion from the real route to the finish line below.",
+        "k3m9xp": "A row of ramps at the starting line of the racetrack, all pointing the wrong way. Every racer speeds forward past them, but they only make sense if you drive in reverse.",
+        "dr66tk": "A giant ape stomping across the racetrack, smashing every car that gets close to the finish line. No racer has ever made it past him.",
+        "ghfn6g": {
+            "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a haunted hotel from a famous horror movie, and all three of its files are found inside it.",
+            "0kbbs9": "A green jade key lying on the patterned carpet of a haunted mountain hotel, right where a little boy once rode his tricycle down the long hallway. Room 237 is just around the corner.",
+            "qe61aa": "A boombox held high over someone's head, blasting a love song across the hotel's grand ballroom. Even the ghosts at the bar have stopped to listen.",
+            "5s7vax": "A fly buzzing against the window of the hotel's empty lobby, trying to escape the snowstorm outside. The elevator doors nearby rumble like they are about to open.",
+            "twva89": {
+                "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a castle on Planet Doom, and all three of its files are found inside its walls.",
+                "0ho60h": "A clear crystal key resting on a pedestal in the throne room of a giant black castle, on a planet where every battle in the universe seems to happen at once.",
+                "24fheh": "The number 24 carved into the castle's front gate, while an army of avatars fights outside its walls.",
+                "gsts71": "The number 42 glowing on the screen of an old Atari console, in a small room at the very top of the castle tower.",
+                "treasure": "Congratulations, Player One. You found the Golden Easter Egg!\n\nYou made it here without a mouse. You used ls to look around, cd to move from room to room, cat to read every clue, and rm and rmdir to clear away everything that wasn't real. That is the secret of the terminal: you can see everything, as long as you know how to look.\n\nWhen I built the OASIS, I hid from the real world for far too long. Don't make my mistake. Go play, go build things, and go show your friends how you got here.\n\nThanks for playing my game.\n- James Halliday"
+            },
+            "rwe78t": {
+                "s9jnxu": "A fancy penthouse apartment at the top of a glass tower, with a hot tub on the balcony and a view of the ocean.",
+                "dpf3pl": "An elevator button labeled 120, inside the headquarters of a giant video game company.",
+                "97zwh8": "A shop in a busy shopping mall where avatars try on armor, capes, and sunglasses."
+            },
+            "e4vt9y": {
+                "whca99": "A monster truck with gigantic tires, crushing a row of cars at a packed stadium show.",
+                "d1u92z": "A long hallway of elevators in a crowded train station, each one with a line of tired commuters waiting in front of it.",
+                "qgvkbt": "A small glowing cube that can turn back time by exactly sixty seconds, locked in a museum display case."
+            }
+        },
+        "4456bs": {
+            "3ikfby": "A silver car with doors that open upward, parked under a town clock tower that was just struck by lightning.",
+            "wfcljn": "A sleek corporate office at the top of a skyscraper, with a giant window over the city and a desk covered in contracts.",
+            "my48cy": "A high-tech gaming rig with a full-body suit, set up in a dark basement full of humming computers."
+        },
+        "bb4446": {
+            "8zq4kp": "A pile of crushed and smoking cars at the bottom of a junkyard crane.",
+            "lhrjai": "A giant metal robot standing in a quiet forest, munching on scrap metal from an old car.",
+            "mva99j": "A little orange creature hopping across a pyramid of cubes, inside an old arcade cabinet at a pizza parlor."
+        }
+    },
+    "dv3tvd": {
+        "hhg5k2": "A golden hand grenade topped with a cross, resting on a velvet pillow in a medieval armory. The instructions say to count to three, no more and no less.",
+        "hkhsto": "A wide green park in the middle of a huge city, full of joggers and horse carriages, with skyscrapers peeking over the trees.",
+        "mhd88i": "A faded name tag that reads KAREN, dropped on the floor of a school gym after a dance. Someone there was too shy to ask her to dance."
+    },
+    "fd33vw": {
+        "20vq8a": "A huge stone gate standing alone on a snowy mountaintop, its doors frozen shut with ice.",
+        "uh2vj7": "A spinning glass globe hanging over a zero-gravity dance club, where avatars float and dance in midair.",
+        "pfcv3f": "A heavy rail gun mounted on the deck of a pirate ship, sailing through a stormy sea."
+    }
+}
