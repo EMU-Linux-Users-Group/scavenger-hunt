@@ -20,8 +20,13 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 GAME_DIR = Path.home() / "ready_player_root"
 FOLDER_STRUCTURE_FILE = SCRIPT_DIR / "folder_structure.readyplayerroot.json"
 HINT_STRUCTURE_FILE = SCRIPT_DIR / "hint_structure.readyplayerroot.json"
-PID_FILE = SCRIPT_DIR / ".monitor.pid"
 MONITOR_SCRIPT = SCRIPT_DIR / "monitor.pyw"
+# Kept in each user's home, because students can't write to an app folder someone else installed
+if sys.platform == "darwin":
+    STATE_DIR = Path.home() / "Library" / "Application Support" / "Ready Player Root"
+else:
+    STATE_DIR = Path.home() / ".local" / "state" / "ready_player_root"
+PID_FILE = STATE_DIR / "monitor.pid"
 
 
 def _make_writable(path: Path):
@@ -402,6 +407,7 @@ def start_monitor(game_dir: Path, folder_structure_file: Path = FOLDER_STRUCTURE
                   pid_file: Path = PID_FILE) -> int:
     """Starts `monitor.pyw` in the background, saves its PID, and returns it"""
 
+    pid_file.parent.mkdir(parents=True, exist_ok=True)
     with open(pid_file.with_suffix(".log"), "a", encoding="utf-8") as log:
         process = subprocess.Popen(  # pylint: disable=consider-using-with
             [sys.executable, str(MONITOR_SCRIPT), str(game_dir),

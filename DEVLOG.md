@@ -102,3 +102,14 @@
 - Added tests (`python3 -m unittest discover -s tests -v`), including tricky
   things students might try
 - Filled in README.md with how to run and how to play (slide text)
+
+## 10/29/26 - 10:20 PM - Nate Rupard (with Claude)
+- Key files no longer say "key". Each one describes the secret way through
+  its room, and the other two files in the right folder are obstacles
+    - Room 3's "24" and "42" are now Orb of Osuvox and Mechagodzilla
+    - Room hints now also say how to spot the key
+- Fixed crashes from symlinks and `chmod`-locked folders found in review
+- Moved the monitor's PID and log files into each user's home folder, so
+  every account on a Mac can run one shared install
+- Added `tools/build_release.py`, which builds a macOS download that bundles
+  its own Python (no admin password or Xcode tools needed)

@@ -1,3 +1,2 @@
 __pycache__/
-.monitor.pid
-.monitor.log
+dist/
