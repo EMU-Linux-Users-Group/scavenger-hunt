@@ -7,8 +7,8 @@ import json
 import os
 from pathlib import Path
 import random
-import shutil
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -24,12 +24,34 @@ PID_FILE = SCRIPT_DIR / ".monitor.pid"
 MONITOR_SCRIPT = SCRIPT_DIR / "monitor.pyw"
 
 
-def _make_folder(path: Path):
-    """Creates the folder at `path` if it is missing, replacing a file in its way"""
+def _make_writable(path: Path):
+    """Lets the game change the folder at `path` again if a player locked it with `chmod`"""
 
-    if path.exists() and not path.is_dir():
+    path.chmod(stat.S_IMODE(path.stat().st_mode) | stat.S_IRWXU)
+
+
+def _clear(path: Path):
+    """
+    Deletes whatever is at `path`, even folders locked with `chmod`.\n
+    Symlinks are deleted without touching what they point to.
+    """
+
+    if path.is_dir() and not path.is_symlink():
+        _make_writable(path)
+        for child in path.iterdir():
+            _clear(child)
+        path.rmdir()
+    elif path.is_symlink() or path.exists():
         path.unlink()
+
+
+def _make_folder(path: Path):
+    """Creates the folder at `path` if it is missing, replacing anything else in its way"""
+
+    if path.is_symlink() or not path.is_dir():
+        _clear(path)
     path.mkdir(parents=True, exist_ok=True)
+    _make_writable(path)
 
 
 class File:
@@ -56,9 +78,9 @@ class File:
         return self._contents
 
     def place(self, path: Path):
-        """Writes the file at `path` unless it is already there, replacing a folder in its way"""
-        if path.is_dir():
-            shutil.rmtree(path)
+        """Writes the file at `path` unless it is already there, replacing anything else in its way"""
+        if path.is_symlink() or path.is_dir():
+            _clear(path)
         if not path.exists():
             path.write_text(self._contents + "\n", encoding="utf-8")
 
@@ -150,6 +172,9 @@ def parse_folder_structure(folder_structure: dict, hint_structure: dict | None =
     otherwise it is a file. `hint_structure` mirrors the same IDs.
     """
 
+    if not isinstance(folder_structure, dict):
+        raise ValueError(f"`{name}` ({id_}) is a folder, so its folder structure entry "
+                         "must be an object")
     if not isinstance(hint_structure, (dict, type(None))):
         raise ValueError(f"`{name}` ({id_}) is a folder, so its hint structure entry "
                          "must be an object")
@@ -245,10 +270,7 @@ def _rename(source: Path, target: Path) -> Path:
 
     if source == target:
         return target
-    if target.is_dir():
-        shutil.rmtree(target)
-    elif target.exists():
-        target.unlink()
+    _clear(target)
     return source.rename(target)
 
 
@@ -274,8 +296,7 @@ class Game:
 
     def setup(self):
         """Deletes any old game and creates the first room"""
-        if self._room_dir.is_dir():
-            shutil.rmtree(self._room_dir)
+        _clear(self._room_dir)
         _make_folder(self._room_dir)
         self._create_room()
 
@@ -343,6 +364,8 @@ class Game:
         """Renames the solved folder and key to their real names and places what comes next"""
         correct = self._room.correct_folder
         key = correct.correct_file
+        _make_writable(self._room_dir)
+        _make_writable(self._room_dir / correct.id_)
         folder_dir = _rename(self._room_dir / correct.id_, self._room_dir / correct.name)
         _rename(folder_dir / key.id_, folder_dir / key.name)
         self._unlocked.append((folder_dir, key))

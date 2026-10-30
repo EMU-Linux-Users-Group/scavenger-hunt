@@ -101,6 +101,10 @@ class ValidateTests(unittest.TestCase):
         self.hints["t78sxc"]["hint"] = ["Red House hint"]
         self.assert_invalid("hint")
 
+    def test_rejects_a_folder_structure_that_is_not_an_object(self):
+        self.folders = ["Red House"]
+        self.assert_invalid("object")
+
     def test_rejects_slash_in_a_revealed_name(self):
         self.folders = {("Red/House" if key == "Red House" else key): value
                         for key, value in self.folders.items()}

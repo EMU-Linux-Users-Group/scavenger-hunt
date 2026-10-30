@@ -162,6 +162,52 @@ class GameTests(unittest.TestCase):
         Game(self.root, self.game_dir).setup()
         self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
 
+    def test_setup_replaces_a_symlink_where_the_game_folder_should_be(self):
+        elsewhere = self.game_dir.parent / "elsewhere"
+        elsewhere.mkdir()
+        (elsewhere / "homework.txt").write_text("keep me", encoding="utf-8")
+        shutil.rmtree(self.game_dir)
+        self.game_dir.symlink_to(elsewhere)
+        Game(self.root, self.game_dir).setup()
+        self.assertFalse(self.game_dir.is_symlink())
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+        self.assertTrue((elsewhere / "homework.txt").is_file())
+
+    def test_setup_deletes_an_old_game_with_locked_folders(self):
+        (self.game_dir / "78tgdf").chmod(0o000)
+        (self.game_dir / "t78sxc").chmod(0o500)
+        Game(self.root, self.game_dir).setup()
+        self.assertTrue((self.game_dir / "78tgdf" / "dsg352").is_file())
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_symlink_where_the_key_should_be_is_replaced(self):
+        key = self.game_dir / "t78sxc" / "dgfhuj"
+        key.unlink()
+        key.symlink_to("..")
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue(key.is_file())
+        self.assertTrue((self.game_dir / "78tgdf" / "dsg352").is_file())
+
+    def test_broken_symlink_where_a_folder_should_be_is_replaced(self):
+        shutil.rmtree(self.game_dir / "t78sxc")
+        (self.game_dir / "t78sxc").symlink_to("nowhere")
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_locked_folder_is_still_reset(self):
+        (self.game_dir / "t78sxc" / "dgfhuj").unlink()
+        (self.game_dir / "t78sxc").chmod(0o500)
+        self.assertEqual(settle(self.game), "Red House hint")
+        self.assertTrue((self.game_dir / "t78sxc" / "dgfhuj").is_file())
+
+    def test_locked_correct_folder_still_unlocks(self):
+        solve_room(self.game_dir, self.root)
+        (self.game_dir / "t78sxc").chmod(0o500)
+        self.game_dir.chmod(0o500)
+        self.assertEqual(settle(self.game), NEXT_ROOM_MESSAGE)
+        self.assertTrue((self.game_dir / "Red House" / "Blue Knife").is_file())
+        self.assertFalse((self.game_dir / "t78sxc").exists())
+
     def test_creation_order_does_not_reveal_the_correct_items(self):
         first_folders, first_files = set(), set()
         for _ in range(30):
