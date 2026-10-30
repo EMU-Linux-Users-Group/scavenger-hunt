@@ -35,16 +35,15 @@ class ReadyPlayerRootTests(unittest.TestCase):
                          ["Copper Key", "Jade Key", "Crystal Key"])
         self.assertEqual(castle.treasure.name, "Golden Easter Egg")
 
-    def test_only_key_files_mention_a_key(self):
-        keys = set()
-        room = self.root
-        while room.folders:
-            keys.add(room.correct_folder.correct_file.id_)
-            room = room.correct_folder
+    def test_no_file_says_it_is_a_key(self):
         for folder in _every_folder(self.root):
             for file in folder.files:
-                mentions_key = re.search(r"\bkeys?\b", file.contents, re.IGNORECASE)
-                self.assertEqual(bool(mentions_key), file.id_ in keys, file.name)
+                self.assertNotRegex(file.contents.lower(), r"\bkeys?\b", file.name)
+
+    def test_no_file_is_just_a_number(self):
+        for folder in _every_folder(self.root):
+            for file in folder.files:
+                self.assertFalse(file.name.isdigit(), file.name)
 
     def rooms(self):
         """Returns every room, starting with the game folder"""

@@ -1,19 +1,19 @@
 {
     "gf4fh4": {
-        "hint": "Oops! That was part of the real path, so this room has been reset. Hint: look for the folder whose three files all happen at the same race, a race that nobody has ever won.",
-        "cfd4ys": "A small key made of copper, still warm from the roaring engines above it. It was hidden in an underground passageway beneath the racetrack, proof that the unwinnable race on the surface was always a diversion from the real route to the finish line below.",
-        "k3m9xp": "A row of ramps at the starting line of the racetrack, all pointing the wrong way. Every racer speeds forward past them, but they only make sense if you drive in reverse.",
-        "dr66tk": "A giant ape stomping across the racetrack, smashing every car that gets close to the finish line. No racer has ever made it past him.",
+        "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a race that nobody has ever won, and all three of its files happen there. In that folder, keep the file that shows the secret way to the finish line, not the ones that wreck the racers.",
+        "cfd4ys": "A hidden tunnel under the starting line of the racetrack. Every racer speeds forward into the chaos, but one who drives in reverse slips into the tunnel and rides safely beneath the track. The race on the surface was always a trick, and the real route to the finish line runs underneath it.",
+        "k3m9xp": "A row of ramps across the middle of the racetrack that launch cars high into the air. Racers who hit them at full speed fly off the road and crash into the buildings beside the track.",
+        "dr66tk": "A giant ape stomping across the racetrack near the finish line, smashing every car that gets close. No racer has ever made it past him.",
         "2hfn6g": {
-            "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a haunted hotel from a famous horror movie, and all three of its files are found inside it.",
-            "8kbbs9": "A green jade key lying on the patterned carpet of a haunted mountain hotel, right where a little boy once rode his tricycle down the long hallway. Room 237 is just around the corner.",
-            "qe61aa": "A boombox held high over someone's head, blasting a love song across the hotel's grand ballroom. Even the ghosts sipping drinks at the old wooden bar have stopped to listen, and nobody wants the song to end.",
-            "5s7vax": "A fly buzzing against the window of the hotel's empty lobby, trying to escape the snowstorm howling outside. The elevator doors nearby rumble and shake like they are about to open on their own.",
+            "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a haunted hotel from a famous horror movie, and all three of its files are found inside it. In that folder, keep the file that shows the way forward, not the ones that distract or trap the visitors.",
+            "8kbbs9": "A ballroom deep inside the haunted hotel, where ghosts in old-fashioned suits dance to music from long ago. Most visitors run from them, but the way forward is to take the leap the game's creator never took: cross the dance floor and ask the woman standing alone to dance.",
+            "qe61aa": "A boombox on the bar of the hotel lounge, blasting the same song over and over. Visitors who stop to listen lose track of time and forget why they came.",
+            "5s7vax": "A fly buzzing around the elevators in the hotel lobby. Visitors who chase it are standing right there when the elevator doors burst open and a flood of red water pours out, sweeping them down the long hallway and all the way back out the front door into the deep, freezing snow outside.",
             "mwva89": {
-                "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a castle on Planet Doom, and all three of its files are found inside its walls.",
-                "xho60h": "A clear crystal key resting on a pedestal in the throne room of a giant black castle, on a planet where every battle in the universe seems to happen at once.",
-                "24fheh": "The number 24 carved into the castle's front gate, while an army of avatars fights outside its walls.",
-                "gsts71": "The number 42 glowing on the screen of an old Atari console, in a small dusty room at the very top of the castle tower. Someone left a joystick lying on the floor, still warm.",
+                "hint": "Oops! That was part of the real path, so this room has been reset. Hint: the right folder is a castle on Planet Doom, and all three of its files are found there. In that folder, keep the file that shows the quiet way through, not the ones that stop the armies.",
+                "xho60h": "An old Atari console in a quiet room at the top of the castle tower. Outside, armies fight to win the battle, but the way through is to sit down, play the old game, and search it for the secret room its creator hid inside.",
+                "24fheh": "A glowing orb in the castle courtyard that wraps the whole castle in a dome-shaped shield. Armies of avatars have been pounding on it for days with swords, lasers, and rockets, and it has never cracked once. Anyone who touches it gets thrown back across the battlefield.",
+                "gsts71": "A giant robot monster guarding the castle gate, blasting fire at anyone who tries to climb the walls.",
                 "treasure": "Congratulations, Player One. You found the Golden Easter Egg!\n\nYou made it here without a mouse. You used ls to look around, cd to move from room to room, cat to read every clue, and rm and rmdir to clear away everything that wasn't real. That is the secret of the terminal: you can see everything, as long as you know how to look.\n\nWhen I built the OASIS, I hid from the real world for far too long. Don't make my mistake. Go play, go build things, and go show your friends how you got here.\n\nThanks for playing my game.\n- James Halliday"
             },
             "rwe78t": {
