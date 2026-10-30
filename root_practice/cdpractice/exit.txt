@@ -1,0 +1,7 @@
+cd can be used to change your directory in any direction! try doing:
+
+	cd ..
+
+then see where you are by using: 
+
+	pwd

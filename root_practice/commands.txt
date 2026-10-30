@@ -1,0 +1,33 @@
+echo: prints whatever the user types afterwards
+example: echo "hello world!" 
+
+you can also use it to make a file by using an angled bracket 
+echo > my_text.txt
+
+ls: lists the folders and files in a directory
+
+cat: reads text from a file
+example: cat commands.txt
+
+pwd: prints the path to your current directory
+
+mkdir: creates a new directory
+example: mkdir my_folder
+
+cd: changes your directory 
+example: cd cdpractice
+
+	then exit back to the next immediate folder by doing: 
+	cd ..
+
+cp: copies a file to a directory
+example: cp commands.txt my_folder
+
+	move back into my_folder by using:
+	cd my_folder
+
+rm: removes a file
+example: rm empty.txt
+
+rmdir: deletes a folder/directory only if empty 
+example: rmdir emptydir
