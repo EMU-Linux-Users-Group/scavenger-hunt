@@ -1,5 +1,5 @@
 """
-Builds the release download for classroom computers.\n
+Builds the Stranger Pings release download for classroom computers.\n
 The download bundles its own Python (from python-build-standalone, the builds
 `uv` uses), so the computer doesn't need Python installed and nobody needs an
 admin password to set it up.\n
@@ -27,10 +27,12 @@ TARGETS = {
 }
 
 REPO_DIR = Path(__file__).resolve().parent.parent
-APP_FILES = ("scavenger_hunt.py", "monitor.pyw", "folder_structure.readyplayerroot.json",
-             "hint_structure.readyplayerroot.json", "README.md")
-LAUNCHER = REPO_DIR / "tools" / "ready-player-root"
-TOP = "ready-player-root"
+APP_FILES = ("stranger_pings.py", "checker.py", "parse.py", "popup.py", "progress.py",
+             "story.py", "world.py", "README.md")
+SHELL_FILES = ("shell/zshrc", "shell/bashrc")
+# Programs people start: the launcher, and a shortcut to double-click in Finder
+LAUNCHERS = (REPO_DIR / "tools" / "stranger-pings", REPO_DIR / "tools" / "Stranger Pings.command")
+TOP = "stranger-pings"
 
 
 def _download(url: str) -> bytes:
@@ -64,14 +66,14 @@ def _add(archive: tarfile.TarFile, name: str, data: bytes | None = None, mode: i
 
 
 def build(platform: str) -> Path:
-    """Writes `dist/ready-player-root-<platform>.tar.gz` and returns its path"""
+    """Writes `dist/stranger-pings-<platform>.tar.gz` and returns its path"""
 
     checksums = {}
     for line in _download(PYTHON_URL + "SHA256SUMS").decode().splitlines():
         digest, name = line.split()
         checksums[name] = digest
 
-    output = REPO_DIR / "dist" / f"ready-player-root-{platform}.tar.gz"
+    output = REPO_DIR / "dist" / f"stranger-pings-{platform}.tar.gz"
     output.parent.mkdir(exist_ok=True)
     with tarfile.open(output, "w:gz") as archive:
         _add(archive, "")
@@ -91,7 +93,11 @@ def build(platform: str) -> Path:
                     archive.addfile(member, python.extractfile(member) if member.isfile() else None)
         for name in APP_FILES:
             _add(archive, name, (REPO_DIR / name).read_bytes())
-        _add(archive, LAUNCHER.name, LAUNCHER.read_bytes(), 0o755)
+        _add(archive, "shell")
+        for name in SHELL_FILES:
+            _add(archive, name, (REPO_DIR / name).read_bytes())
+        for launcher in LAUNCHERS:
+            _add(archive, launcher.name, launcher.read_bytes(), 0o755)
     return output
 
 

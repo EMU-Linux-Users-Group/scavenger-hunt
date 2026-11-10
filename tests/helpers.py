@@ -1,37 +1,55 @@
-"""Shared paths and player actions for the scavenger hunt tests"""
+"""A pretend student for the game-rule tests"""
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
-import shutil
+import subprocess
+import tempfile
 
-from scavenger_hunt import Folder
+from checker import Outcome, Report, check
+from progress import Progress
+import world
 
-REPO_DIR = Path(__file__).resolve().parent.parent
-TEST_FOLDER_STRUCTURE = REPO_DIR / "folder_structure.test.json"
-TEST_HINT_STRUCTURE = REPO_DIR / "hint_structure.test.json"
-
-
-def solve_room(room_dir: Path, room: Folder):
-    """Deletes the wrong folders and wrong files of `room` like a player would"""
-    for folder in room.folders[1:]:
-        shutil.rmtree(room_dir / folder.id_)
-    for file in room.correct_folder.files[1:]:
-        (room_dir / room.correct_folder.id_ / file.id_).unlink()
+SOLUTION = ("echo hello Will", "ls", "cat walkie_talkie", "pwd", "mkdir castle_byers",
+            "cd castle_byers", "cd ..", "cp eggos castle_byers", "rm gate/demogorgon",
+            "rmdir gate")
 
 
-def settle(game):
-    """Polls until the game has seen the same folders twice and returns what it said"""
-    return game.poll() or game.poll()
+def run_in_bash(line: str, cwd: Path, home: Path) -> Report:
+    """Runs `line` in a real bash in `cwd` and reports it the way the shell add-on would"""
+    read, write = os.pipe()
+    script = f'{line}\n__s=$?\nprintf %s "$PWD" >&{write}\nexit $__s'
+    result = subprocess.run(["bash", "--noprofile", "--norc", "-c", script], cwd=cwd,
+                            env={**os.environ, "HOME": str(home), "PWD": str(cwd)},
+                            pass_fds=(write,), capture_output=True, check=False)
+    os.close(write)
+    with os.fdopen(read) as pipe:
+        after = pipe.read() or str(cwd)
+    return Report(line, result.returncode, cwd, Path(after))
 
 
-def play_to_the_end(game, root: Folder, game_dir: Path) -> list[str | None]:
-    """Solves every room in order and returns each popup message"""
-    messages = []
-    room, room_dir = root, game_dir
-    while not game.finished and len(messages) < 10:
-        solve_room(room_dir, room)
-        messages.append(settle(game))
-        room_dir = room_dir / room.correct_folder.name
-        room = room.correct_folder
-    return messages
+class Session:
+    """A student with their own temporary home, starting at `step` as if a helper had skipped there"""
+
+    def __init__(self, test_case, step: int = 0):
+        tmp = tempfile.TemporaryDirectory()
+        test_case.addCleanup(tmp.cleanup)
+        self.home = Path(tmp.name)
+        self.progress = Progress(step)
+        world.prepare(step, self.home)
+        self.cwd = world.start_folder(step, self.home)
+
+    def type(self, line: str) -> Outcome:
+        """Types `line`, lets the game react, and follows any move it asks for"""
+        report = run_in_bash(line, self.cwd, self.home)
+        outcome = check(report, self.progress, self.home)
+        self.cwd = outcome.move_to or report.after
+        return outcome
+
+    def play_to(self, step: int):
+        """Types the solution lines until the student reaches `step`"""
+        for line in SOLUTION:
+            if self.progress.step >= step:
+                return
+            self.type(line)

@@ -1,0 +1,59 @@
+# Stranger Pings add-on for zsh.
+# The game copies this into the student's state folder and points ZDOTDIR at it,
+# so the student's own ~/.zshrc is never read or changed.
+#
+# After every command, this hands the game what was typed, whether it worked,
+# and the folder before and after. The game answers with the prompt's
+# Christmas lights and, sometimes, a folder to move the student into.
+
+unset HISTFILE
+
+# Treat `!`, `?` and `*` in words that match nothing as plain characters (as bash
+# does), so a message like `echo where are you Will?!` just works
+unsetopt BANG_HIST NOMATCH
+
+# For helpers: `stranger-pings reset`, `stranger-pings skip mkdir`, ...
+stranger-pings() {
+    "$STRANGER_PINGS_PYTHON" -E -s "$STRANGER_PINGS_APP/stranger_pings.py" "$@"
+}
+
+# Runs the game's `check` or `status` and applies its answer
+__sp_apply() {
+    local command=$1 out lights move=""
+    shift
+    # Control-C pressed while the game checks must not interrupt it halfway,
+    # so both this shell and the checker it starts ignore it until it's done
+    setopt local_options local_traps
+    trap '' INT
+    out=$(trap '' INT; exec "$STRANGER_PINGS_PYTHON" -E -s \
+        "$STRANGER_PINGS_APP/stranger_pings.py" "$command" --shell zsh "$@")
+    [[ -z $out ]] && return
+    lights=${out%%$'\n'*}
+    [[ $out == *$'\n'* ]] && move=${out#*$'\n'}
+    PROMPT="$lights %1~ %# "
+    [[ -n $move ]] && builtin cd -- "$move"
+}
+
+typeset -g __sp_line="" __sp_before=""
+typeset -gi __sp_pending=0
+
+# Runs just before a command: remembers what was typed and where
+__sp_preexec() {
+    __sp_line=$1
+    __sp_before=$PWD
+    __sp_pending=1
+}
+
+# Runs before every prompt: checks the command that just finished, if there was one.
+# It goes first in the list, so `$?` is still the command's exit status.
+__sp_precmd() {
+    local exit_status=$?
+    (( __sp_pending )) || return 0
+    __sp_pending=0
+    __sp_apply check --status "$exit_status" --before "$__sp_before" --after "$PWD" \
+        -- "$__sp_line"
+}
+
+preexec_functions+=(__sp_preexec)
+precmd_functions=(__sp_precmd $precmd_functions)
+__sp_apply status

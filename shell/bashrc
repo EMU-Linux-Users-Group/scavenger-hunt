@@ -1,0 +1,59 @@
+# Stranger Pings add-on for bash, loaded with `bash --rcfile`.
+# The student's own ~/.bashrc is never read or changed.
+#
+# After every command, this hands the game what was typed, whether it worked,
+# and the folder before and after. The game answers with the prompt's
+# Christmas lights and, sometimes, a folder to move the student into.
+
+# Keep every command in history (even repeats and lines starting with a space)
+# so each one gets checked, and never write the history to a file.
+HISTFILE=
+HISTCONTROL=
+HISTIGNORE=
+
+# Treat `!` as a plain character, so `echo hi Will!!` just works
+set +H
+
+# For helpers: `stranger-pings reset`, `stranger-pings skip mkdir`, ...
+stranger-pings() {
+    "$STRANGER_PINGS_PYTHON" -E -s "$STRANGER_PINGS_APP/stranger_pings.py" "$@"
+}
+
+# Runs the game's `check` or `status` and applies its answer
+__sp_apply() {
+    local command=$1 out lights move=""
+    shift
+    # Control-C pressed while the game checks must not interrupt it halfway,
+    # so both this shell and the checker it starts ignore it until it's done
+    trap '' INT
+    out=$(trap '' INT; exec "$STRANGER_PINGS_PYTHON" -E -s \
+        "$STRANGER_PINGS_APP/stranger_pings.py" "$command" --shell bash "$@")
+    trap - INT
+    [ -z "$out" ] && return
+    lights=${out%%$'\n'*}
+    case $out in *$'\n'*) move=${out#*$'\n'} ;; esac
+    PS1="$lights \\W % "
+    [ -n "$move" ] && builtin cd -- "$move"
+}
+
+__sp_seen=""
+__sp_before=$PWD
+
+# Runs before every prompt: checks the command that just finished, if there was one
+__sp_prompt() {
+    local status=$? entry number line
+    entry=$(HISTTIMEFORMAT= builtin history 1)
+    entry=${entry#"${entry%%[![:space:]]*}"}
+    number=${entry%%[!0-9]*}
+    if [ -n "$number" ] && [ "$number" != "$__sp_seen" ]; then
+        __sp_seen=$number
+        line=${entry#"$number"}
+        line=${line#\*}
+        line=${line#  }
+        __sp_apply check --status "$status" --before "$__sp_before" --after "$PWD" -- "$line"
+    fi
+    __sp_before=$PWD
+}
+
+PROMPT_COMMAND=__sp_prompt
+__sp_apply status

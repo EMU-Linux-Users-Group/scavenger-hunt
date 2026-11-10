@@ -113,3 +113,19 @@
   every account on a Mac can run one shared install
 - Added `tools/build_release.py`, which builds a macOS download that bundles
   its own Python (no admin password or Xcode tools needed)
+
+## 11/10/26 - 4:45 PM - Nate Rupard (with Claude)
+- Replaced Ready Player Root with **Stranger Pings**: the presentation and the
+  game are now the same thing, one command per slide
+    - Ready Player Root went badly because the slides confused everyone and
+      the class never reached the hunt
+- Each slide is a step in a Stranger Things story: echo to Will through the
+  lights, read Dustin's walkie-talkie, get pulled into the Upside Down, build
+  Castle Byers, bring Eleven Eggos, defeat the Demogorgon, close the gate
+- A shell add-on (`shell/zshrc`, `shell/bashrc`) reports every command to the
+  checker; popups only for success, themed hints for mistakes, and a
+  Christmas-light prompt that shows how many slides each student has done
+- Helpers can `reset`, `skip` to a slide, or switch to backup popups
+- Drafted the slide text and speaker notes (`docs/slides.md`) and a
+  morning-of-class checklist (`docs/morning-checklist.md`)
+- Tests play the whole game in real bash and zsh shells
