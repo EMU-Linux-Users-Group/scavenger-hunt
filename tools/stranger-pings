@@ -1,7 +1,7 @@
 #!/bin/sh
-# Runs Ready Player Root with the Python that ships next to this script, so the
+# Runs Stranger Pings with the Python that ships next to this script, so the
 # computer doesn't need Python installed and nobody needs an admin password.
-# Usage: ready-player-root start | stop
+# Usage: stranger-pings [start | reset | skip COMMAND | popups auto|tk]
 
 DIR=$(cd "$(dirname "$0")" && pwd -P)
 PYTHON="$DIR/python/$(uname -m)/bin/python3"
@@ -15,4 +15,4 @@ if command -v xattr >/dev/null 2>&1 && xattr -p com.apple.quarantine "$PYTHON" >
     xattr -dr com.apple.quarantine "$DIR" 2>/dev/null
 fi
 
-exec "$PYTHON" "$DIR/scavenger_hunt.py" "$@"
+exec "$PYTHON" -E -s "$DIR/stranger_pings.py" "$@"
