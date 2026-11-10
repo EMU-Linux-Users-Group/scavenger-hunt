@@ -1,146 +1,110 @@
 # scavenger-hunt
 
-**Ready Player Root** is a terminal scavenger hunt for the EMU Linux Users
-Group's Digital Dudes and Divas activity. Players use `ls`, `cd`, `cat`, `rm`,
-and `rmdir` to work through three rooms of folders, collect the Copper, Jade,
-and Crystal Keys, and unlock the Golden Easter Egg. A background monitor
-watches what they delete, reveals each room once the previous one is solved,
-and shows popups along the way.
+**Stranger Pings** is a terminal lesson for the EMU Linux Users Group's
+Digital Dudes and Divas activity. Each slide teaches one command and is also
+one step of a Stranger Things story. While a slide is up, students type its
+command into the real Terminal on their own computer. When they get it right,
+a popup tells the next part of the story, and a bulb lights up in the string
+of Christmas lights in their prompt. Mistakes get a short hint right in the
+terminal.
+
+- Slide text and speaker notes: [`docs/slides.md`](docs/slides.md)
+- Before class: [`docs/morning-checklist.md`](docs/morning-checklist.md)
+- Design: [`docs/superpowers/specs/2026-11-10-stranger-pings-design.md`](docs/superpowers/specs/2026-11-10-stranger-pings-design.md)
+
+The slides teach nine commands, in this order: `echo`, `ls`, `cat`, `pwd`,
+`mkdir`, `cd`, `cp`, `rm`, `rmdir`.
 
 ## Requirements
 
-- Linux or macOS. There is nothing to install with pip.
+- macOS or Linux, with zsh or bash. There is nothing to install with pip.
 - On macOS, use the release download (see below). It brings its own Python.
 - Running from this repo instead needs Python 3.9 or newer.
-- Popups use `osascript` on macOS. On Linux they use tkinter (on Fedora:
-  `sudo dnf install python3-tkinter`) or fall back to `zenity`.
+- Popups use `osascript` on macOS, with a tkinter window as the backup. On
+  Linux they use tkinter (on Fedora: `sudo dnf install python3-tkinter`) or
+  fall back to `zenity`.
 
 ## Setting up classroom Macs
 
 Each [release](https://github.com/EMU-Linux-Users-Group/scavenger-hunt/releases)
-has a `ready-player-root-macos.tar.gz`. It works on Apple Silicon and Intel
-Macs and bundles its own Python, so it needs no admin password and no Xcode
-tools. On each Mac, open Terminal and paste:
+has a `stranger-pings-macos.tar.gz`. It works on Apple Silicon and Intel Macs
+and bundles its own Python, so it needs no admin password and no Xcode tools.
+On each Mac, open Terminal and paste:
 
 ```bash
-curl -fsSL https://github.com/EMU-Linux-Users-Group/scavenger-hunt/releases/latest/download/ready-player-root-macos.tar.gz | tar -xpzf - -C /Users/Shared
+curl -fsSL https://github.com/EMU-Linux-Users-Group/scavenger-hunt/releases/latest/download/stranger-pings-macos.tar.gz | tar -xpzf - -C /Users/Shared
 ```
 
-That puts the game in `/Users/Shared/ready-player-root`, where every account
-on the Mac can run it. Each student's game and monitor live in their own home
-folder, so students can't break each other's games. Then, from any account:
-
-```bash
-/Users/Shared/ready-player-root/ready-player-root start
-/Users/Shared/ready-player-root/ready-player-root stop
-```
+That puts the game in `/Users/Shared/stranger-pings`, where every account on
+the Mac can run it. Then, logged in as the student, either run
+`/Users/Shared/stranger-pings/stranger-pings` in Terminal or double-click
+`Stranger Pings.command` in that folder. Each student's game and progress live
+in their own home folder.
 
 Use `curl` rather than downloading in a browser. macOS blocks programs
 downloaded in a browser until whoever downloaded them runs them once. To
 update a Mac, run the same `curl` command again.
 
-To build a new release download: `python3 tools/build_release.py`. It writes
-`dist/ready-player-root-macos.tar.gz`.
+## Helper commands
 
-## Running it
+Inside a student's game, type these as shown. Outside it, use the full path
+`/Users/Shared/stranger-pings/stranger-pings`.
+
+| Command | What it does |
+|---|---|
+| `stranger-pings` | Opens the game in this Terminal window. If the student already made progress, it picks up where they left off. |
+| `stranger-pings reset` | Starts the student over from the first slide. |
+| `stranger-pings skip mkdir` | Jumps the student to that slide (any of the nine commands), as if they'd done every slide before it. |
+| `stranger-pings popups tk` | Switches this account to the backup popup (`popups auto` switches back). |
+
+## How it works
+
+- `stranger-pings` builds the student's world (`~/hawkins`, and later its
+  mirror in the Upside Down, `~/upside_down/hawkins`). Then it opens the
+  student's own shell (zsh, or bash) with a small add-on from `shell/`. The
+  student's own startup files are never read or changed.
+- After every command, the add-on runs `stranger_pings.py check`. It passes
+  along what was typed, whether it worked, and the folder before and after.
+- The rules in `checker.py` decide whether the slide is finished (popup), was
+  attempted the wrong way (hint), or neither. They quietly put back anything
+  the student deleted that a slide still needs. The answer comes back as the
+  prompt's lights and, sometimes, a folder to move the student into.
+- Progress is saved per account in
+  `~/Library/Application Support/Stranger Pings/` on macOS or
+  `~/.local/state/stranger_pings/` on Linux. If anything ever goes wrong,
+  details land in `errors.log` there, never in the student's terminal.
+
+## Editing the story
+
+Everything students read is in `story.py`: the popups, the hints, the banner,
+and the text inside every file. Changing the wording there is safe. Renaming a
+file or folder also needs changes in `world.py`, `checker.py`, and the tests.
+
+## Running from the repo
 
 ```bash
-python3 scavenger_hunt.py start   # wipe and create the game, start the monitor
-python3 scavenger_hunt.py stop    # stop the monitor
+python3 stranger_pings.py          # opens the game in this terminal; `exit` leaves it
+python3 stranger_pings.py reset    # start over
 ```
 
-- The game is created in `~/ready_player_root`. Players start with
-  `cd ~/ready_player_root`.
-- `start` always deletes the old game and starts fresh. If a monitor is
-  already running, it is stopped first, so there is only ever one.
-- `start` checks both JSON files before touching anything. If something is
-  wrong with them, it prints the problem and changes nothing.
-- The monitor exits on its own once the treasure is unlocked.
-- If the monitor ever misbehaves, its output is in `monitor.log`, in
-  `~/Library/Application Support/Ready Player Root/` on macOS or
-  `~/.local/state/ready_player_root/` on Linux.
-
-## How to play
-
-*(This section doubles as the slide text for the presentation.)*
-
-1. **There are three rooms.** Each room has three folders, and each folder has
-   three files. Their names are scrambled, like `gf4fh4`.
-2. **Read everything.** `cd` into each folder and `cat` every file. Each file
-   describes an object and where it is.
-3. **Find the right folder.** Only one folder has three files that all
-   describe the *same place*. In the other two folders, the files describe
-   objects scattered all over the place.
-4. **Find the key.** Inside the right folder, two files describe obstacles
-   and distractions that stop you. The key is the file that reveals the
-   secret way to beat the room's challenge.
-5. **Clear away everything else.** `rm` the two files that aren't the key.
-   Then empty the two wrong folders with `rm` and remove them with `rmdir`
-   (or use `rm -r`).
-6. **Unlock the next room.** When only the right folder and its key are left,
-   a popup congratulates you. The folder and key get their real names (like
-   `Unbeatable Race` and `Copper Key`), and the next room appears inside it.
-7. **Careful!** If you delete the right folder or the key, the room resets and
-   a popup gives you a hint.
-8. Collect all three keys to find the **Golden Easter Egg**.
-
-Tips:
-
-- Names with spaces need quotes or Tab completion: `cd "Unbeatable Race"`.
-- If `ls` looks empty after a room resets, run `cd ..` and go back in.
-- `pwd` tells you where you are.
-
-## Writing a hunt
-
-A hunt is two JSON files.
-
-**`folder_structure.<name>.json`** maps names to IDs. When an ID is also a key
-whose value is an object, it is a folder; otherwise it is a file. The first
-folder and the first file in each folder are the correct ones. The last
-correct folder holds `"treasure": "<file name>"`.
-
-```json
-{
-    "Unbeatable Race": "gf4fh4",
-    "gf4fh4": {
-        "Copper Key": "cfd4ys",
-        "Backwards Ramps": "k3m9xp",
-        "King Kong": "dr66tk",
-        "Overlook Hotel": "2hfn6g",
-        "2hfn6g": { "...": "..." }
-    }
-}
-```
-
-**`hint_structure.<name>.json`** mirrors the same nesting using **IDs only**.
-A file ID maps to the text inside that file. `"hint"` inside a correct folder
-is the popup shown when a player wrecks that room. `"treasure"` holds the
-treasure text.
-
-```json
-{
-    "gf4fh4": {
-        "hint": "Oops! That was part of the real path...",
-        "cfd4ys": "A hidden tunnel under the starting line...",
-        "k3m9xp": "A row of ramps...",
-        "dr66tk": "A giant ape...",
-        "2hfn6g": { "...": "..." }
-    }
-}
-```
-
-The hunt `start` uses is set by `FOLDER_STRUCTURE_FILE` and
-`HINT_STRUCTURE_FILE` at the top of `scavenger_hunt.py`.
-
-## For facilitators: known ways to cheat
-
-The answers live in this repo's JSON files. Because the monitor runs as the
-student's own user, a student who finds the repo, or who spots the JSON paths
-in `ps` output, can read them. Keep the repo somewhere students won't go
-looking, and treat it as part of the honor system.
+To clean up afterward: `rm -rf ~/hawkins ~/upside_down` and the progress
+folder above.
 
 ## Tests
 
 ```bash
 python3 -m unittest discover -s tests -v
+```
+
+`tests/test_shells.py` plays the game in real bash and zsh shells by typing
+into them. The zsh tests are skipped unless zsh is installed
+(`sudo dnf install zsh`); install it, since the Macs use zsh. To run those
+tests against an unpacked release instead of the repo, set
+`STRANGER_PINGS_COMMAND` to its `stranger-pings` launcher.
+
+## Building a release
+
+```bash
+python3 tools/build_release.py         # dist/stranger-pings-macos.tar.gz
+python3 tools/build_release.py linux   # for testing on Linux
 ```

@@ -1,20 +1,15 @@
-# Tuesday
-- [x] folder re-creation functionality 
-- [x] finished `Folder.create` function
+# Stranger Pings
 
-# Wednesday
-- [x] hints/hint functionality
-- [x] Ready Player Root folder structure
-      - [x] draft
-- [x] Ready Player Root incorrect file names
-- [x] monitor functionality
+# Before class
+- [ ] team review of the story text in `story.py` (popups, hints, files)
+- [ ] paste `docs/slides.md` into the Google Slides deck
+- [ ] publish a release so the `curl` install line works
+- [ ] on class day, run `docs/morning-checklist.md` on one Mac before
+      students arrive
 
-# Thursday
-- [x] functionality to rename each layer of folders and files to their 
-      non-garbled names when their respective keys are found
-- [x] commands
-- [ ] add better explanation of how this is all going to work in the 
-      presentation
-      - slide text is in README.md → "How to play"; paste it into the
-        Google Slides deck
-- [ ] team review of the hint text in `hint_structure.readyplayerroot.json`
+# Done
+- [x] game rules for all nine slides, with hints and quiet repair
+- [x] zsh and bash add-on that checks every command
+- [x] `stranger-pings` start / reset / skip / popups
+- [x] Christmas-light prompt
+- [x] macOS release download that needs no admin password

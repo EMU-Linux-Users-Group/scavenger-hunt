@@ -1,54 +1,31 @@
-# EMU LUG Digital D___s Scavenger Hunt Specification
+# EMU LUG Digital D___s: Stranger Pings Specification
+
+The full design is in
+`docs/superpowers/specs/2026-11-10-stranger-pings-design.md`. In short:
 
 # Basic Functionality
-- in the folder structure, every 0th folder is the correct one
-    - in the example, this means every folder named "folder0"
-    - files work the same way
-- another way you know a folder is correct based on the structure is it will 
-  have three folders in it
-    - for the players, these three folders will only appear when they have 
-      eliminated the two incorrect folders (with their files) and the two incorrect files
+- the presentation and the game are the same thing: each slide teaches one
+  command and is one step of a Stranger Things story
+- the nine slides, in order: `echo`, `ls`, `cat`, `pwd`, `mkdir`, `cd`, `cp`,
+  `rm`, `rmdir`
+- students type each command in the real Terminal; the class moves to the
+  next slide once everyone has their popup
 
-# Hints/Hint Functionality
-- we need a folder structure format called hint_structure that maps hints to 
-  the files/folders they are contained to
-- every file will contain a hint based on where it is and what it contains
-    - if it is the incorrect folder, the hints contained within the three files 
-      will be random from each other
-    - if it is the correct folder, the hints will be descriptive of being in 
-      the same room
-- if the wrong folder gets destroyed, display a unique hint for the correct 
-  folder of that folder layer
+# Feedback
+- a popup appears **only** when a student finishes a slide, so anyone in the
+  room can see who's done
+- a mistake prints a one-line hint in the terminal, in the story's voice
+- exploring (running `ls` again, reading other files) gets no response
+- the prompt is a string of Christmas lights: one bulb lit per finished slide
 
-# Monitor Functionality
-- in order for the program to know when the player deletes the correct files 
-  and folders, it needs to use a monitor (monitor.pyw) that runs in the 
-  background
-- the monitor will moniter the folder structure
-    - if the student deletes the correct folders and files
-        - popup a message saying "Congratulations! You unlocked the next room!"
-            - unless the treasure is unlocked, then say, "Congratulations! 
-              You unlocked the treasure!"
-        - place the next folders and files with their proper contents
-    - if the student deletes the wrong folders and files
-        - popup a message displaying the aforementioned unique hint 
-        - replace the necessary folders and files, but do not delete the 
-          student's progress
-
-# Folder Rename Functionality
-- if you notice in the folder_structure, names map to ids, and ids map to the 
-  actual structure
-- by default, folders and files are named their ids
-- when a folder layer is solved, the file and folder names should be renamed to
-  their names rather than ids
-    - make sure the whole program is aware when the rename happens so no glitches happen
+# The Story's Folders
+- students start in `~/hawkins`
+- after the cat slide they're pulled into its mirror, `~/upside_down/hawkins`,
+  which looks the same from the prompt; `pwd` reveals it
+- anything a student breaks that a later slide needs is quietly put back
 
 # Commands
-- `python3 scavenger_hunt.py start`
-    - creates/initializes the folder structure
-    - starts the monitor
-    - if the folder structure already exists
-        - delete it
-        - start new
-- `python3 scavenger_hunt.py stop`
-    - stops the monitor
+- `stranger-pings`: open the game (resumes saved progress)
+- `stranger-pings reset`: start over
+- `stranger-pings skip COMMAND`: jump to a slide
+- `stranger-pings popups auto|tk`: switch to the backup popup
