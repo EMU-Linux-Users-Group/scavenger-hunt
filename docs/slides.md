@@ -57,9 +57,12 @@ through the Christmas lights. Send him a message!
 echo hello Will
 ```
 
-(Any message works.)
+(Any message works. Stick to letters and spaces.)
 
-**Tip:** Press Return to run a command.
+**Tips:**
+- Press Return to run a command.
+- If you see `quote>` or `>` instead of your lights, press Control-C and try
+  again.
 
 **Speaker notes:**
 - Say: "Everything you type after `echo` comes right back to you. The
@@ -69,6 +72,8 @@ echo hello Will
 - Watch for:
   - `echo` with no message. The hint asks for a message.
   - Typos like `ehco`. The hint spells it out: e-c-h-o.
+  - An apostrophe (`echo I'm here`) leaves the terminal waiting at `quote>`
+    for the closing quote. Press Control-C and type it without the `'`.
 
 ---
 
@@ -193,7 +198,7 @@ cd ..
 - Success: popup "That was close. The coast is clear..." and **6 bulbs** lit.
 - Watch for:
   - Stopping after the first line.
-  - `cd..` with no space. It has to be `cd ..`.
+  - `cd..` with no space. It has to be `cd ..`; the hint asks for the space.
 
 ---
 

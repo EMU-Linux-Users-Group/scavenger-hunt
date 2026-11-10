@@ -9,6 +9,7 @@ import pty
 import re
 import select
 import shlex
+import signal
 import struct
 import subprocess
 import sys
@@ -39,6 +40,7 @@ class GameTerminal:
         full_env = {key: value for key, value in os.environ.items()
                     if not key.startswith("STRANGER_PINGS_")}
         full_env.update(HOME=str(home), SHELL=shell, TERM="dumb",
+                        STRANGER_PINGS_USE_SHELL=shell,
                         STRANGER_PINGS_POPUP_LOG=str(home / "popups.log"))
         full_env.update(env or {})
         self.master, follower = pty.openpty()
@@ -76,6 +78,25 @@ class GameTerminal:
                 if not data:
                     raise AssertionError(f"the shell exited; got:\n{text[-2000:]}")
                 self.buffer += data.decode("utf-8", errors="replace")
+
+    def interrupt_while_checking(self, timeout: float = 5) -> bool:
+        """
+        Presses Control-C at the moment the game's checker is running (Linux only:
+        it watches /proc for the checker) and returns whether it caught it.
+        """
+        end = time.time() + timeout
+        while time.time() < end:
+            for pid in os.listdir("/proc"):
+                if not pid.isdigit():
+                    continue
+                try:
+                    command = Path(f"/proc/{pid}/cmdline").read_bytes()
+                except OSError:
+                    continue
+                if b"stranger_pings.py\0check" in command:
+                    os.killpg(os.tcgetpgrp(self.master), signal.SIGINT)
+                    return True
+        return False
 
     def lit(self) -> int:
         """Returns how many bulbs are lit in the last prompt"""

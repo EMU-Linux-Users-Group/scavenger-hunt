@@ -89,11 +89,15 @@ def _all_paths(command: Command, report: Report, home: Path) -> list[Path]:
 
 
 def _completes(step: int, command: Command, report: Report, progress: Progress,
-               home: Path) -> bool:
-    """Returns whether `command` finishes the slide for `step`"""
+               home: Path, last: bool) -> bool:
+    """
+    Returns whether `command` finishes the slide for `step`.\n
+    The exit status belongs to the line's last command, so an earlier command
+    on the line (`echo hi; oops`) is taken to have worked.
+    """
 
     name = story.COMMANDS[step]
-    ok = report.status == 0
+    ok = report.status == 0 or not last
     if command.name.lower() != name:
         return False
     if name == "echo":
@@ -131,6 +135,8 @@ def _current_hint(step: int, command: Command, report: Report, progress: Progres
     mirror = world.mirror(home)
     if name == "echo" and not command.args:
         return "echo_empty", None
+    if name == "echo" and failed:
+        return "echo_letters", None
     if any(f"{first}_{second}" in _UNDERSCORE_NAMES for first, second in zip(words, words[1:])):
         return "spaces", None
     if name == "cat":
@@ -173,6 +179,9 @@ def _hint(step: int, command: Command, report: Report, progress: Progress,
     if report.status == 127 and name in story.COMMANDS and command.name != name:
         return "lowercase", None
     if report.status == 127:
+        for known in sorted(story.COMMANDS, key=len, reverse=True):
+            if name.startswith(known) and name[len(known):len(known) + 1] in ("-", ".", "/", "~"):
+                return f"space:{known}", None
         typo = _typo_of(command.name, step)
         if typo:
             return f"typo:{typo}", None
@@ -180,7 +189,9 @@ def _hint(step: int, command: Command, report: Report, progress: Progress,
             and not world.gate(home).exists()):
         return "use_rmdir", None
     if name in story.COMMANDS[step + 1:]:
-        return "later", None
+        # A `cd` before its slide would leave the student lost, so bring them back
+        start = world.start_folder(step, home)
+        return "later", (start if name == "cd" and not _same(report.after, start) else None)
     if name == story.COMMANDS[step]:
         return _current_hint(step, command, report, progress, home)
     return None, None
@@ -196,18 +207,18 @@ def check(report: Report, progress: Progress, home: Path) -> Outcome:
     if progress.step >= world.FINISHED:
         return outcome
     commands = split_line(report.line)
-    if commands and commands[0].name == "stranger-pings":
+    if commands and Path(commands[0].name).name == "stranger-pings":
         # A helper's command; it has already updated the progress and the world
         if (commands[0].args[:1] or ("",))[0] in _HELPER_MOVES:
             outcome.move_to = world.start_folder(progress.step, home)
         return outcome
 
     after_existed = report.after.is_dir()
-    for command in commands:
+    for index, command in enumerate(commands):
         if progress.step >= world.FINISHED:
             break
         step = progress.step
-        if _completes(step, command, report, progress, home):
+        if _completes(step, command, report, progress, home, index == len(commands) - 1):
             progress.step += 1
             progress.entered_castle = False
             outcome.popup = story.POPUPS[step]
@@ -223,6 +234,11 @@ def check(report: Report, progress: Progress, home: Path) -> Outcome:
             outcome.move_to = outcome.move_to or move
 
     world.prepare(progress.step, home)
-    if outcome.move_to is None and not after_existed and report.after.is_dir():
-        outcome.move_to = report.after
+    if outcome.move_to is None:
+        if not report.after.is_dir():
+            # The repair took away the folder the shell is in; never leave it there
+            outcome.move_to = world.start_folder(progress.step, home)
+        elif not after_existed:
+            # The repair rebuilt the folder the shell is in; step back into the new one
+            outcome.move_to = report.after
     return outcome

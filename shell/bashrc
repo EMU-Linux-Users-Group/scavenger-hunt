@@ -11,6 +11,9 @@ HISTFILE=
 HISTCONTROL=
 HISTIGNORE=
 
+# Treat `!` as a plain character, so `echo hi Will!!` just works
+set +H
+
 # For helpers: `stranger-pings reset`, `stranger-pings skip mkdir`, ...
 stranger-pings() {
     "$STRANGER_PINGS_PYTHON" -E -s "$STRANGER_PINGS_APP/stranger_pings.py" "$@"
@@ -20,8 +23,12 @@ stranger-pings() {
 __sp_apply() {
     local command=$1 out lights move=""
     shift
-    out=$("$STRANGER_PINGS_PYTHON" -E -s "$STRANGER_PINGS_APP/stranger_pings.py" \
-        "$command" --shell bash "$@")
+    # Control-C pressed while the game checks must not interrupt it halfway,
+    # so both this shell and the checker it starts ignore it until it's done
+    trap '' INT
+    out=$(trap '' INT; exec "$STRANGER_PINGS_PYTHON" -E -s \
+        "$STRANGER_PINGS_APP/stranger_pings.py" "$command" --shell bash "$@")
+    trap - INT
     [ -z "$out" ] && return
     lights=${out%%$'\n'*}
     case $out in *$'\n'*) move=${out#*$'\n'} ;; esac

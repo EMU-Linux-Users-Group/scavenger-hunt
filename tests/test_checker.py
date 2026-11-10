@@ -192,6 +192,37 @@ class TrickyTests(unittest.TestCase):
                 self.assertEqual(s.type(line), Outcome())
                 self.assertEqual(s.progress.step, 0)
 
+    def test_echo_counts_even_if_a_later_command_fails(self):
+        s = Session(self, 0)
+        self.assertEqual(s.type("echo we are coming; hang on").popup, story.POPUPS[0])
+
+    def test_echo_that_fails_gets_the_letters_hint(self):
+        s = Session(self, 0)
+        self.assertEqual(s.type("echo hi > /no/such/folder/note").hint, "echo_letters")
+
+    def test_command_glued_to_its_argument(self):
+        s = Session(self, 5)
+        s.type("cd castle_byers")
+        self.assertEqual(s.type("cd..").hint, "space:cd")
+        self.assertEqual(Session(self, 1).type("ls-la").hint, "space:ls")
+
+    def test_early_cd_moves_the_student_back(self):
+        s = Session(self, 2)
+        outcome = s.type("cd byers_house")
+        self.assertEqual((outcome.hint, outcome.move_to), ("later", world.hawkins(s.home)))
+
+    def test_repair_never_leaves_the_shell_in_a_deleted_folder(self):
+        s = Session(self, 3)
+        outcome = s.type("mkdir castle_byers && cd castle_byers")
+        self.assertFalse(world.castle(s.home).exists())
+        self.assertEqual(outcome.move_to, world.mirror(s.home))
+
+    def test_helper_command_by_full_path(self):
+        s = Session(self, 3)
+        outcome = s.type("/Users/Shared/stranger-pings/stranger-pings skip mkdir")
+        self.assertEqual((outcome.hint, outcome.move_to),
+                         (None, world.start_folder(3, s.home)))
+
     def test_helper_commands_are_not_judged(self):
         s = Session(self, 3)
         outcome = s.type("stranger-pings skip mkdir")

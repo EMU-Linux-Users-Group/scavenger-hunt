@@ -60,8 +60,8 @@ Inside a student's game, type these as shown. Outside it, use the full path
 ## How it works
 
 - `stranger-pings` builds the student's world (`~/hawkins`, and later its
-  mirror in the Upside Down, `~/upside_down/hawkins`). Then it opens the
-  student's own shell (zsh, or bash) with a small add-on from `shell/`. The
+  mirror in the Upside Down, `~/upside_down/hawkins`). Then it opens zsh (or
+  bash, if the computer has no zsh) with a small add-on from `shell/`. The
   student's own startup files are never read or changed.
 - After every command, the add-on runs `stranger_pings.py check`. It passes
   along what was typed, whether it worked, and the folder before and after.
@@ -101,6 +101,8 @@ into them. The zsh tests are skipped unless zsh is installed
 (`sudo dnf install zsh`); install it, since the Macs use zsh. To run those
 tests against an unpacked release instead of the repo, set
 `STRANGER_PINGS_COMMAND` to its `stranger-pings` launcher.
+`STRANGER_PINGS_USE_SHELL=/bin/bash` makes the game use that shell instead of
+zsh; the bash tests use it.
 
 ## Building a release
 

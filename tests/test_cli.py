@@ -157,6 +157,17 @@ class ShellCommandTests(unittest.TestCase):
 
     def test_choose_shell(self):
         self.assertEqual(choose_shell("/bin/zsh"), "/bin/zsh")
-        self.assertEqual(choose_shell("/usr/bin/bash"), "/usr/bin/bash")
         self.assertEqual(choose_shell("/usr/bin/fish"),
                          shutil.which("zsh") or shutil.which("bash"))
+
+    def test_zsh_is_preferred_over_a_bash_login_shell(self):
+        fake_bin = self.state / "bin"
+        fake_bin.mkdir(parents=True)
+        (fake_bin / "zsh").write_text("#!/bin/sh\n", encoding="utf-8")
+        (fake_bin / "zsh").chmod(0o755)
+        path = os.environ["PATH"]
+        os.environ["PATH"] = f"{fake_bin}{os.pathsep}{path}"
+        try:
+            self.assertEqual(choose_shell("/bin/bash"), str(fake_bin / "zsh"))
+        finally:
+            os.environ["PATH"] = path

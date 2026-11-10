@@ -75,13 +75,16 @@ FILES = {
         "It is guarding the gate. Get rid of it!",
 }
 
-# One-line hints printed in the terminal. `typo` fills in the spelled-out command.
+# One-line hints printed in the terminal. `typo` fills in the spelled-out command,
+# and `space` the command that was typed without a space after it.
 HINTS = {
     "typo": "The lights stay dark... check the spelling: {letters}",
     "lowercase": "Commands use only small letters. Try it again in lowercase.",
     "later": "That's for a later slide. Watch the screen!",
     "try_again": "Not quite. Look at the slide and try again.",
     "echo_empty": "Will can't hear silence. Type echo, a space, then your message.",
+    "echo_letters": "Will can only read letters and spaces. Try just words, like: echo hello Will",
+    "space": "Put a space between {command} and the rest, like the slide shows.",
     "spaces": "Names here use _ instead of spaces, like walkie_talkie.",
     "cat_folder": "That's a folder, not a file. cat only reads files.",
     "cat_missing": "There's no file by that name here. Type ls to see what's around.",
@@ -101,8 +104,11 @@ HINTS = {
 
 
 def hint_text(key: str) -> str:
-    """Returns the hint for `key`, where `typo:<command>` spells out that command"""
+    """Returns the hint for `key`; `typo:<command>` spells out that command, and
+    `space:<command>` asks for a space after it"""
 
     if key.startswith("typo:"):
         return HINTS["typo"].format(letters="-".join(key[len("typo:"):]))
+    if key.startswith("space:"):
+        return HINTS["space"].format(command=key[len("space:"):])
     return HINTS[key]

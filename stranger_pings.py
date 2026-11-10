@@ -42,12 +42,18 @@ def lights(step: int, shell: str) -> str:
 
 
 def choose_shell(env_shell: str) -> str | None:
-    """Returns the shell to play in: the student's own if it's zsh or bash, else zsh, else bash"""
+    """
+    Returns the shell to play in: zsh whenever the computer has it (the student's
+    own zsh first), otherwise bash.\n
+    zsh comes first because it's what the classroom Macs are tested with; a Mac's
+    own bash is very old.
+    """
 
-    if Path(env_shell).name in ("zsh", "bash"):
+    if Path(env_shell).name == "zsh":
         return env_shell
     import shutil  # pylint: disable=import-outside-toplevel
-    return shutil.which("zsh") or shutil.which("bash")
+    return shutil.which("zsh") or (env_shell if Path(env_shell).name == "bash" else None) \
+        or shutil.which("bash")
 
 
 def shell_command(shell_path: str, state: Path) -> tuple[list[str], dict[str, str]]:
@@ -88,7 +94,8 @@ def _start(home: Path, state: Path) -> int:
         print("  " + story.RESUME.format(command=story.COMMANDS[progress.step]) + "\n")
     elif progress.step == world.FINISHED:
         print("  " + story.DONE_ALREADY + "\n")
-    shell = choose_shell(os.environ.get("SHELL", ""))
+    # STRANGER_PINGS_USE_SHELL picks a shell outright (the tests use it to play in bash)
+    shell = os.environ.get("STRANGER_PINGS_USE_SHELL") or choose_shell(os.environ.get("SHELL", ""))
     if shell is None:
         print("Stranger Pings needs zsh or bash, and this computer has neither.", file=sys.stderr)
         return 1
