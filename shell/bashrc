@@ -1,0 +1,2 @@
+# Stranger Pings add-on for bash, loaded with `bash --rcfile`.
+# The student's own ~/.bashrc is never read or changed.

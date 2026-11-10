@@ -1,0 +1,3 @@
+# Stranger Pings add-on for zsh.
+# The game copies this into the student's state folder and points ZDOTDIR at it,
+# so the student's own ~/.zshrc is never read or changed.
