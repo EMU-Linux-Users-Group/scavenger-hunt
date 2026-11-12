@@ -129,3 +129,11 @@
 - Drafted the slide text and speaker notes (`docs/slides.md`) and a
   morning-of-class checklist (`docs/morning-checklist.md`)
 - Tests play the whole game in real bash and zsh shells
+
+## 11/12/26 - 4:30 PM - Nate Rupard
+- Played the whole game as a student in a real terminal (zsh and bash), trying
+  the mistakes and tricks students are likely to try
+- Control-D at an empty prompt no longer closes the game by accident; `exit`
+  still does
+- Python now keeps its compiled files in each student's state folder, so the
+  prompt comes back about 6x faster (the app folder is read-only for students)

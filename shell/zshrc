@@ -12,9 +12,20 @@ unset HISTFILE
 # does), so a message like `echo where are you Will?!` just works
 unsetopt BANG_HIST NOMATCH
 
+# Control-D (right next to Control-C) at an empty prompt would quietly close the
+# game; `exit` still does
+setopt IGNORE_EOF
+
+# Runs the game. Python keeps its compiled files in the student's state folder,
+# since the app folder is read-only and recompiling them slows every prompt.
+__sp_python() {
+    "$STRANGER_PINGS_PYTHON" -E -s -X "pycache_prefix=$STRANGER_PINGS_PYCACHE" \
+        "$STRANGER_PINGS_APP/stranger_pings.py" "$@"
+}
+
 # For helpers: `stranger-pings reset`, `stranger-pings skip mkdir`, ...
 stranger-pings() {
-    "$STRANGER_PINGS_PYTHON" -E -s "$STRANGER_PINGS_APP/stranger_pings.py" "$@"
+    __sp_python "$@"
 }
 
 # Runs the game's `check` or `status` and applies its answer
@@ -25,8 +36,7 @@ __sp_apply() {
     # so both this shell and the checker it starts ignore it until it's done
     setopt local_options local_traps
     trap '' INT
-    out=$(trap '' INT; exec "$STRANGER_PINGS_PYTHON" -E -s \
-        "$STRANGER_PINGS_APP/stranger_pings.py" "$command" --shell zsh "$@")
+    out=$(trap '' INT; __sp_python "$command" --shell zsh "$@")
     [[ -z $out ]] && return
     lights=${out%%$'\n'*}
     [[ $out == *$'\n'* ]] && move=${out#*$'\n'}

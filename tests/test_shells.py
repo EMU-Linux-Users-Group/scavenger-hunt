@@ -10,6 +10,7 @@ import time
 import unittest
 
 from helpers import SOLUTION
+from progress import state_dir
 import story
 from terminal import GameTerminal
 
@@ -107,6 +108,18 @@ class ShellMixin:
         self.assertIn(story.hint_text("cat_no_file"), terminal.until_prompt())
         self.type(terminal, "cat walkie_talkie")
         self.assertEqual(terminal.lit(), 3)
+
+    def test_control_d_does_not_close_the_game(self):
+        terminal = self.open()
+        os.write(terminal.master, b"\x04")
+        terminal.until_prompt()
+        self.assertIn(story.hint_text("typo:echo"), self.type(terminal, "ehco hi"))
+
+    def test_compiled_python_is_kept_in_the_state_folder(self):
+        terminal = self.open()
+        self.type(terminal, "echo hi")
+        cache = state_dir(self.home) / "pycache"
+        self.assertTrue(any(cache.rglob("checker*.pyc")), f"nothing compiled in {cache}")
 
     def test_students_own_startup_files_are_ignored(self):
         for name in (".bashrc", ".zshrc", ".zshenv"):

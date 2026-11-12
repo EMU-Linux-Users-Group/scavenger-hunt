@@ -65,7 +65,7 @@ def shell_command(shell_path: str, state: Path) -> tuple[list[str], dict[str, st
     """
 
     env = {"STRANGER_PINGS_SHELL": "1", "STRANGER_PINGS_PYTHON": sys.executable,
-           "STRANGER_PINGS_APP": str(APP_DIR)}
+           "STRANGER_PINGS_APP": str(APP_DIR), "STRANGER_PINGS_PYCACHE": str(state / "pycache")}
     if "zsh" in Path(shell_path).name:
         zdotdir = state / "zsh"
         zdotdir.mkdir(parents=True, exist_ok=True)
