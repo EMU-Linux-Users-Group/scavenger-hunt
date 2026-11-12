@@ -137,3 +137,12 @@
   still does
 - Python now keeps its compiled files in each student's state folder, so the
   prompt comes back about 6x faster (the app folder is read-only for students)
+
+## 11/12/26 - 4:36 PM - Nate Rupard
+- Published v2.0.1 and tested the actual download again as a student,
+  including updating a Mac while a student's game was open
+- Docs: updates must be run from the account that first installed the game
+  (other accounts get `Permission denied`); how to find that account
+- Docs: `exit` closes the game but Control-D doesn't; no bulbs in the prompt
+  means a student has left the game; the first command in each account can
+  take a moment longer

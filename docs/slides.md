@@ -280,5 +280,6 @@ folder with something still inside.
   - `stranger-pings skip mkdir` jumps that student to the mkdir slide (use
     any command name). Use it if their game got reset.
   - `stranger-pings reset` starts that student over from the first slide.
-- If a student closed Terminal, open the game again (see
-  `docs/morning-checklist.md`). It picks up where they left off.
+- **No bulbs in the prompt = not in the game.** The student closed Terminal or
+  typed `exit`. Open the game again (see `docs/morning-checklist.md`); it
+  picks up where they left off. Control-D can't close it by accident.

@@ -29,7 +29,8 @@ The slides teach nine commands, in this order: `echo`, `ls`, `cat`, `pwd`,
 Each [release](https://github.com/EMU-Linux-Users-Group/scavenger-hunt/releases)
 has a `stranger-pings-macos.tar.gz`. It works on Apple Silicon and Intel Macs
 and bundles its own Python, so it needs no admin password and no Xcode tools.
-On each Mac, open Terminal and paste:
+On each Mac, log in to the account you'll use for setup (a helper's or the
+teacher's), open Terminal, and paste:
 
 ```bash
 curl -fsSL https://github.com/EMU-Linux-Users-Group/scavenger-hunt/releases/latest/download/stranger-pings-macos.tar.gz | tar -xpzf - -C /Users/Shared
@@ -42,8 +43,16 @@ the Mac can run it. Then, logged in as the student, either run
 in their own home folder.
 
 Use `curl` rather than downloading in a browser. macOS blocks programs
-downloaded in a browser until whoever downloaded them runs them once. To
-update a Mac, run the same `curl` command again.
+downloaded in a browser until whoever downloaded them runs them once.
+
+To update a Mac, run the same `curl` command again **from the account that
+first installed it**. The `stranger-pings` folder belongs to that account, so
+from any other account the update prints a long list of
+`Can't unlink already-existing object: Permission denied` errors and the old
+version stays. To see which account that is, run
+`ls -ld /Users/Shared/stranger-pings`; the third column is the owner.
+Updating keeps every student's saved progress, and game windows that are
+already open keep working.
 
 ## Helper commands
 
@@ -56,6 +65,10 @@ Inside a student's game, type these as shown. Outside it, use the full path
 | `stranger-pings reset` | Starts the student over from the first slide. |
 | `stranger-pings skip mkdir` | Jumps the student to that slide (any of the nine commands), as if they'd done every slide before it. |
 | `stranger-pings popups tk` | Switches this account to the backup popup (`popups auto` switches back). |
+
+To close the game, type `exit`. Control-D does nothing inside the game, so
+students can't close it by accident. If a student's prompt has no bulbs,
+they've left the game; start it again and it picks up where they left off.
 
 ## How it works
 
@@ -71,8 +84,11 @@ Inside a student's game, type these as shown. Outside it, use the full path
   prompt's lights and, sometimes, a folder to move the student into.
 - Progress is saved per account in
   `~/Library/Application Support/Stranger Pings/` on macOS or
-  `~/.local/state/stranger_pings/` on Linux. If anything ever goes wrong,
-  details land in `errors.log` there, never in the student's terminal.
+  `~/.local/state/stranger_pings/` on Linux. Python's compiled files are
+  kept there too (in `pycache`): students can't write to the app folder, and
+  recompiling after every command would slow down the prompt. If anything
+  ever goes wrong, details land in `errors.log` there, never in the student's
+  terminal.
 
 ## Editing the story
 
